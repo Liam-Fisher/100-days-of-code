@@ -1,0 +1,26 @@
+Ordered:
+
+    1. List out the main inputs/outputs of the top-level exported component <ngx-rnbo-device>
+    
+    2. Figure out the sub components hierarchy
+        * top-level by data type (e.g. a top-level messaging component, a top-level parameters components etc...)
+        * container and layout components 
+        * Actual gui components
+
+    3. Figure out the data flows between components
+    
+    4. Figure out where Services are needed?
+        * Root level services (e.g. a service for controlling audio)
+        * Component level services (e.g. a service for controlling a single parameter instance) 
+        * Pipes? (not sure when/if this would be necessary)
+    5. Determine the inclusion of Angular Material elements in the GUI
+        * Which elements to use?
+        * which properties should be accessible to the device meta?
+    6. Design the actual GUI using Figma/Canva ? 
+    
+    7. Do any additional publishing work
+        * clean up the documentation
+        * add some info links   
+
+Unordered: 
+

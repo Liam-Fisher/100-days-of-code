@@ -3,28 +3,9 @@
 ### Day 1: March 12th, 2024 (Example 1)
 ##### (delete me or comment me out)
 
-**Today's Progress**: Fixed CSS, worked on canvas functionality for the app.
+**Today's Progress**: started by creating the base device component and adding some inputs/otuputs, as well as adding some methods to the device service 
 
-**Thoughts:** I really struggled with CSS, but, overall, I feel like I am slowly getting better at it. Canvas is still new for me, but I managed to figure out some basic functionality.
+**Thoughts:** I decided to ignore the library apsect for now and just create a basic application (which I alread no how to do). I can migrate this later. Was kind of unprepared for a project of this scale -- probably going to do some more planning. Realized I might have to use rxjs Subjects for a lot of inputs/outputs, as it seems like signals are more about push changes instead of timed events like message - I'll have to do some reasearch on the "laziness" of signals 
 
-**Link to work:** [Calculator App](http://www.example.com)
+I also copied a bunch of type definitions from other projects (didn;t count this in my hour), which are basically the same as the RNBO ones, just moved around a bit, but it really helped to review all the data types (e.g. device, preset, buffer etc.. ) that I'm going to be working with, and sped up the process of coding. 
 
-### Day 0: February 30, 2016 (Example 2)
-##### (delete me or comment me out)
-
-**Today's Progress**: Fixed CSS, worked on canvas functionality for the app.
-
-**Thoughts**: I really struggled with CSS, but, overall, I feel like I am slowly getting better at it. Canvas is still new for me, but I managed to figure out some basic functionality.
-
-**Link(s) to work**: [Calculator App](http://www.example.com)
-
-
-### Day 1: June 27, Monday
-
-**Today's Progress**: I've gone through many exercises on FreeCodeCamp.
-
-**Thoughts** I've recently started coding, and it's a great feeling when I finally solve an algorithm challenge after a lot of attempts and hours spent.
-
-**Link(s) to work**
-1. [Find the Longest Word in a String](https://www.freecodecamp.com/challenges/find-the-longest-word-in-a-string)
-2. [Title Case a Sentence](https://www.freecodecamp.com/challenges/title-case-a-sentence)

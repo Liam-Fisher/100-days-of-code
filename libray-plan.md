@@ -33,8 +33,8 @@ It should end up looking something like this:
     - Audio
     - Patcher
     - Messages
-    - Parameters
     - Presets
+    - Parameters
     - Buffers
     - MIDI
 
@@ -48,6 +48,7 @@ It should end up looking something like this:
     The main focus will be the ability to send and receive data from the device. This makes the element sort of a high-level wrapper for the `RNBO.BaseDevice` class, so that it can easily be used and edited in angular applications without too much boilerplate. I'd like the element to function as both a visual interface for the device **AND** a invisible wrapper for the RNBO API. This should be doable by *adding a visible attribute to the top level element*. The GUI aspects should enable compactness as much as reasonable, while maintaining the maximum possible control over the Device at the user level. 
 
 ## Dynamic or Static Patcher Uploading
+
     I'd like to make the action of loading the patcher itself as flexible as possible, so I'll make the patcher file an element attribute that can be set from within or outside of the component.
     This will require the application to provide either:
         - **A**: An existing, preloaded patcher (i.e. `<ngx-rnbo-device patcher="preloadedPatcher"></ngx-rnbo-device>`)
@@ -55,6 +56,7 @@ It should end up looking something like this:
         (i.e. `<ngx-rnbo-device [library]="patcherNameArray" [patcher]="dowloadedPatcher|async" (selectionChange)="downloadPatcher($event)"></ngx-rnbo-device>`)  
  
 ## Audio Initialization
+
     I'm going to add an embedded interface for controlling audio, that, at the very least, initializes the audio context (this needs to be done via user input, like a mouse click), and, by default routes audio out of device, directly to the speakers. The web audio api has some pretty basic setup code that is handled by libraries like [tone.js](https://tonejs.github.io/). I considered including tone as a dependency but decided against it, however my hope is that the end result should be compatible with this as well as ui libraries like [nexusUI](https://nexus-js.github.io/ui/), so that you can use them in external libraries with a minimal increase in complexity.
 
     - Side note, I have an [existing repo](https://github.com/Liam-Fisher/voicefx) where I experimented with using nexusUI in conjunction with RNBO to create an interface for a voice-modulation device.  
@@ -63,31 +65,46 @@ It should end up looking something like this:
 
     I'm going to add the ability to send messages to the device, from both a GUI input/output and via signals (?) 
 
+## Change Presets 
+
+    The ability to change the device parameters, as well as listen to changes made in the device. 
+
+## Parameters
+
+    The ability to 
 ## External MIDI access
+
     I'm gonna do the bare minimum here, and simply expose the MIDI inputs/outputs from the top level component. 
+
 ## Buffer Access
+
     Buffers in RNBO can be converted between "AudioBuffers" (which contains channel, duration and samplerate metadata) and an array of Float32Arrays (one for each channel). These will have getters and setters which should allow the **asynchronous** sharing of data with other elements.  
 
 # What it **should** be able to do...
 
 ## Audio Controls 
+
     As an expansion on the Audio Initialization component, I'd like to add GUI/API functionality for the following: 
         1. Routing audio in and out of the device (should be pretty easy, basically just exposing the device.node property as a property of the <ngx-rnbo-device> element)
         2. enabling input from the user's microphone
-        3. An output gain control slider
+        3. Control sliders for input and output gain
 
 ## Custom Meta Documentation
+
     I'd like to take advantage of the meta properties of message ports/parameters to add custom (input by the application user) tooltips and annotations 
 
 # What it **might** be able to do...
 
 ## Midi Printer
+
     Might add a toggle to allow midi bytes to be printed to the console as they are input/output. This is an offering to developers based on the assumption that, if you've figured out how to route midi into a web application, you're probably comfortable opening dev tools to do some debugging.
 
 ## Buffer GUI
+
     Allowing a user to make changes to the content of a buffer 
 
 ## patcher upload from disk
+
     It might be beneficial to add an input for a user-created patcher from disk , using an html input element. This *might* be a faster method for debugging/fiddling (i.e.g, compiling the patcher in RNBO and uploading it directly instead of adding it to assets/uploading to a server then recompiling), but could be useful for an application that allows a user to upload a custom patcher from disk, and integrate it as part of the predefined signal chain.
 
 
@@ -100,6 +117,10 @@ Given that the GUI will mostly be intended for functionality, (debugging/testing
 ## Multiple Devices
     Although a big part of RNBO is the capability to connect devices, this will be a single-device element. Hopefully, the input/output ui should allow the connecting of multiple elements present 
     **I'M NOT SURE WHAT TO DO ABOUT THE EMBEDDED AUDIO CONTEXT WHEN MULTIPLE DEVICE ELEMENTS ARE PRESENT**, so this is a big TBD.
+
+## A Text interface
+
+    The GUI will probably be fairly compact, i.e. instead of being able to see all the parameters, I am going to add a search functionality so only one parameter at a time is displayed. To allow faster manipulation of the device for live performance, I *might* consider creating a text-only interface so that devices could be "played" as  live instruments using coding by users familiar with the device, and willing to learn a little extra...
 
 # What it **won't** be able to do...
 
@@ -117,15 +138,20 @@ Given that the GUI will mostly be intended for functionality, (debugging/testing
 # Process
 
 ## Library Format 
+
     Angular libraries seem more difficult to test than so I'm going to start by creating an application, writing most or all of the code, then migrating it to a library project, and testing it alongside a sample application in the same workspace. If all goes well, I'll work on publishing the package. 
+
 ## Design Workflow 
-    I'm going to take the following steps when designing the application, I'll probably write code in between these segments, which doesn't seem like best practice, but I don't think I'm quite ready for a #100DaysOfSystemDesign challenge just yet... :
+
+    I'm going to take the following steps when designing the application, I'll probably write code in between these segments, which may not be best practices (?), but I don't think I'm quite ready for a #100DaysOfSystemDesign challenge just yet... 
+
     1. List out the main inputs/outputs of the top-level exported component <ngx-rnbo-device>
     2. Figure out the sub components hierarchy
         * top-level by data type (e.g. a top-level messaging component, a top-level parameters components etc...)
         * container and layout components 
         * Actual gui components
     3. Figure out the data flows between components
+
     4. Figure out where Services are needed?
         * Root level services (e.g. a service for controlling audio)
         * Component level services (e.g. a service for controlling a single parameter instance) 
@@ -136,6 +162,6 @@ Given that the GUI will mostly be intended for functionality, (debugging/testing
     6. Design the actual GUI using Figma/Canva ? 
     7. Do any additional publishing work
         * clean up the documentation
-        * add some info links   
-
-Furthermore, I'm going to be writing type defintions from steps 2 - 5 
+        * add some info links
+ 
+Furthermore, I'm going to be writing type definitions from steps 2 - 5 . These will mostly be extensions on the types provided by the RNBO library, with any specific interfaces for meta properties. 

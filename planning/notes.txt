@@ -1,0 +1,26 @@
+Data stream categories:
+
+    // interupt level
+    these data types will interupt the flow of other data streams and are for setup, while the device is not running
+    - Audio // audio inputs/outputs are synchronous (in fact, the only "truly" syncronous data stream), 
+    // but setting/starting the audio context and connecting to device inputs is NOT, and will likely result in audible clicks or possibly a crash.
+    - Patcher // the createDevice function is asyncronous and should not be called on a "running" device, aka a device whose audioContext.state is 'running'
+    
+    // asyncronous level
+    these data types cannot be expected to be completed in any specific amount of time, however, they can be used  
+    - Buffers // setting and getting buffers is asyncronous, a synchronous solution could be implemented within the device using two addional audio channels (one for indices (with -1 meaning ignore) and one for setting values) 
+
+    - Presets // loading presets is syncronous, but probably shouldn't be expected to completed automatically, especially if there are a lot of parameters  
+
+    // schedule level
+    these data types can be timed, and are assumed to be completed immediately, although this will vary
+    - Messaging **// atomic, aka each message makes it to the device, but I have no clue how long it takes them to get there, (I'm pretty sure it's outside the Event loop)
+    - MIDI // also atomic, and probably more time-accurate than messages? 
+    - Parameters **// NOT atomic, aka the last value sent is assumed to be the current value of the parameter, but not all value may be passed, however
+    - Timing // techinically atomic, (I think), but shouldn't be treated as such, 
+    // it probably won't matter for time signature, is indistinguishable for tempo and shouldn't be used to triggered timed events for transport and beattime
+
+
+the timing/preset/(buffer?) inputs are going to be split into "per-event" functions, i.e. scheduleTransportEvent, scheduleTempoEvent, updatePreset, loadPreset, as well as a top level "routing function".
+This will mean that consumers should pass in the type of action, as well as any data required in an interface, 
+This is so that each dynamic data stream category will have a single input   
