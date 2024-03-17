@@ -3,7 +3,7 @@ import { AudioService } from '../../services/audio/audio.service';
 import { RnboDeviceService } from '../../services/device/rnbo-device.service';
 import { NgxPatcher } from '../../types/patcher';
 import { PresetAction } from '../../types/preset';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { PortMessage } from '../../types/messaging';
 import { TimingMesssage } from '../../types/timing';
 

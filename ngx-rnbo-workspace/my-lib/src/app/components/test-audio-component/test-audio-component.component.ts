@@ -1,21 +1,17 @@
-import { Injectable, NgZone, computed, effect, signal } from '@angular/core';
+import { Component } from '@angular/core';
 
-@Injectable({
-  providedIn: 'root'
+@Component({
+  selector: 'app-test-audio-component',
+  standalone: true,
+  imports: [],
+  templateUrl: './test-audio-component.component.html',
+  styleUrl: './test-audio-component.component.scss'
 })
-export class AudioService {
-  context: AudioContext|null = null;
-  isLoaded = computed<boolean>(() => this.context !== null && this.context?.state === 'running');
-  adc: MediaStreamAudioSourceNode|null = null;
-  gain_in!: GainNode;
-  gain_out!: GainNode;
-  gain_out_value!: AudioParam;
-  gain_smooth = 0.1;
-  constructor(public ngZone: NgZone) { }
+export class TestAudioComponentComponent {
 
   get loadedContext() {
-    if(!this.context || this.context.state !== 'running') return null;
-    return this.context;
+    if(!this.isLoaded()) return null;
+    return this.context();
   }
   get dac() {
     return this.loadedContext?.destination??null;
@@ -33,7 +29,7 @@ export class AudioService {
     }
     console.log('resuming audio context');
     await context.resume();
-    this.context = context;
+    this.context.set(context);
     console.log('audio context resumed');
     this.gain_in = context.createGain();
     this.gain_in.gain.setValueAtTime(0.1, 0);
@@ -78,14 +74,14 @@ export class AudioService {
     return Math.max(-96, Math.min(12, 20 * Math.log10(v*0.99+0.001)));
   }
   setInputGain(value: number) {
-    let t = this.context?.currentTime ?? null;
+    let t = this.context()?.currentTime ?? null;
     if(t === null) return;
     console.log(`setting input gain to ${value}`);
     console.log(`current time: ${t}`);
   }
   setOutputGain(tgt: number) {
     this.ngZone.runOutsideAngular(() => {
-      let t = this.context?.currentTime ?? null;
+      let t = this.context()?.currentTime ?? null;
       if(t === null) return;
       let val = this.gain_out.gain.value;
       this.gain_out.gain.setValueAtTime(val, t);
@@ -93,5 +89,4 @@ export class AudioService {
       setTimeout(() => console.log(`ramp to ${tgt} from ${val} completed at time ${t}`), 1000);
     });
   }
-
 }

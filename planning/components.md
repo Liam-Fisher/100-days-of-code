@@ -30,7 +30,8 @@ Setting the audio context toggle (via patcher or otherwise) will enable the othe
     control whether the default user microphone is routed to the device
 
 #### Output Toggle
-    control whether the default user 
+    control whether the default user output is connected to the device.
+     
 
 ## Asyncronous Data Streams
 
