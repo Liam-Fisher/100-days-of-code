@@ -1,6 +1,11 @@
 
 
 
+// Audio constraints
+// consumer MUST provide a context
+// consumer a provide a src and/or destination node, otherwise the userMedia/destination will be used  
+
+
 
 An AudioContext is shared between all devices by default using the AudioService.
 When the consumer provides an audioContext the createAudioContext method is called with that as an argument, else it should be called with null as an argument, which will create an audioContext.

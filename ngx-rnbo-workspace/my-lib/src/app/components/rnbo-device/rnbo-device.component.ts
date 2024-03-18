@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, model, signal } from '@angular/core';
+import { Component, EffectRef, Input, computed, effect, inject, input, model, signal } from '@angular/core';
 import { AudioService } from '../../services/audio/audio.service';
 import { RnboDeviceService } from '../../services/device/rnbo-device.service';
 import { NgxPatcher } from '../../types/patcher';
@@ -6,27 +6,31 @@ import { PresetAction } from '../../types/preset';
 import { Subject } from 'rxjs';
 import { PortMessage } from '../../types/messaging';
 import { TimingMesssage } from '../../types/timing';
+import * as audioSig from '../../services/audio/signals';
+import { AudioControlPanelComponent } from '../audio/audio-control-panel/audio-control-panel.component';
 
 @Component({
   selector: 'ngx-rnbo-device',
   standalone: true,
-  imports: [],
+  providers: [AudioService, RnboDeviceService],
+  imports: [AudioControlPanelComponent],
   template: `
-    <p>
-      rnbo-device works!
-    </p>
+    <ngx-audio-control-panel></ngx-audio-control-panel>
   `,
   styles: ``
 })
 export class RnboDeviceComponent {
-  audioService = inject(AudioService);
-  audioContext = model<AudioContext|null>(); // the audio context
-  audioInputGain = model<number>(0); // the input gain node
-  audioOutputGain = model<number>(0); // the output gain node
-
-
-  deviceService = inject(RnboDeviceService);
-  deviceNode = computed(() => this.deviceService.device()?.node??null);
+  audio = inject(AudioService);
+  // was having trouble using a signal for this... but let's try it again
+  audioCtx =  input<AudioContext|null>(null); // the audio context 
+  ctxChange = effect(() => {
+    this.audio.initContext(this.audioCtx());
+  });
+  audioInputGain = audioSig.gain_in; // the input gain node
+  audioOutputGain = audioSig.gain_out; // the output gain node
+  
+  device = inject(RnboDeviceService);
+  deviceNode = computed(() => this.device.device()?.node??null);
 
    
   /// think we're going to get these from the preset component using queries 
@@ -63,5 +67,11 @@ export class RnboDeviceComponent {
 
   // Still need Buffer and Parameter attributes.
   constructor() { }
+  set audioContext(ctx: AudioContext) {
+    this.audio.initContext(ctx);
+  }
+  setInputGain(gain: number) {
+    this.audio.setInputGain(gain);
+  }
 
 }

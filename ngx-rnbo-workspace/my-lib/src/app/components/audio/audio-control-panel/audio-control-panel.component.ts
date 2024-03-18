@@ -1,62 +1,76 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { AudioService } from '../../../services/audio/audio.service';
 import { RnboDeviceService } from '../../../services/device/rnbo-device.service';
-import { from } from 'rxjs';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { ctx_state } from '../../../services/audio/signals';
 
 @Component({
   selector: 'ngx-audio-control-panel',
   standalone: true,
   imports: [ReactiveFormsModule],
-  providers: [AudioService, RnboDeviceService],
   template: `
+  <button (click)="loadContext()">{{closed()? 'load': 'reload'}}</button>
   
-  <button (click)="loadContext()">load</button>
-  <p>is loaded: {{audioService.isLoaded()}}</p>
+  @if(!closed())  {
+  <input #ctx type="checkbox" [checked]="running()" name="pausePlayContext" (change)="toggleContext(ctx.checked? 'running' : 'suspended')" />
+  <label for="pausePlayContext">audio is {{state()}}</label>
+  
   <button (click)="doTest()">test</button>
-  <button (click)="log()">log</button>
-  <input type="range" min="0" max="1" step="0.001" [formControl]="gainInControl" />
-  <input type="range" min="0" max="1" step="0.001" [formControl]="gainOutControl" />
+  <div>
+  <input name="inputGain" type="range" min="0" max="1" step="0.01" [formControl]="inputGainControl" />
+  <label for="inputGain">Input Gain</label>
+  </div>  
+  <div>
+  <input name="outputGain" type="range" min="0" max="1" step="0.01" [formControl]="outputGainControl" />
+  <label for="outputGain">Output Gain</label>
+  </div>
+  }
   `,
   styles: ``
 })
 export class AudioControlPanelComponent {
-  audioService = inject(AudioService);
+  state = computed(() => ctx_state()??'closed');
+  running = computed(() => this.state() === 'running');
+  closed = computed(() => this.state() === 'closed');
   deviceService = inject(RnboDeviceService);
   testNode!: OscillatorNode;
-  gainInControl = new FormControl(0);
-  gainOutControl = new FormControl(0);
+  inputGainControl = new FormControl(0, {nonNullable: true});
+  outputGainControl = new FormControl(0, {nonNullable: true});
   
-  
-  constructor() { 
-    this.gainInControl.valueChanges.subscribe((value) => {
-      if(value !== null) {
-      }
-    });
-    this.gainOutControl.valueChanges.subscribe((value) => {
-      if(value !== null) {
-        let normalizeGain = this.audioService.normalizeGain(value);
-        console.log(`output gain changed to: ${normalizeGain}`);
-        this.audioService.setOutputGain(normalizeGain);
-        
-      }
-    });
 
+  audio = inject(AudioService);
+
+  constructor() { 
+    this.inputGainControl.valueChanges.subscribe((value) => {
+      if(value !== null) {
+        this.audio.setInputGain(value*0.99+0.0001);
+      }
+    });
+    this.outputGainControl.valueChanges.subscribe((value) => {
+      if(value !== null) {
+        this.audio.setOutputGain(value*0.99+0.0001);
+      }
+    });
   }
-  log() {
-    console.log(`gain node value`, this.audioService.gain_out_value);
+  set inputGain(value: number) {
+    this.inputGainControl.setValue(value);
   }
-  loadContext() {
-    this.audioService.createAudioContext(null);
+  set outputGain(value: number) {
+    this.outputGainControl.setValue(value);
   }
-  doTest(){
-    if(this.audioService.loadedContext === null) return;
-    this.audioService.routeOut();
-    this.testNode = this.audioService.loadedContext.createOscillator();
-    
+  async toggleContext(state: 'running'|'suspended'|'closed') {
+    await this.audio.setState(state);
+  }
+  async loadContext() {
+    await this.audio.createAudioGraph(this.deviceService.device());
+  }
+  doTest()  {
+    let ctx = this.audio.context;
+    if(ctx === null) return;
+    this.testNode = ctx.createOscillator();
     this.testNode.type = "sawtooth";
-    this.testNode.frequency.setValueAtTime(220, this.audioService.loadedContext.currentTime); // value in hertz
-    this.audioService.linkGainIO(this.testNode);
+    this.testNode.frequency.setValueAtTime(220, ctx.currentTime); // value in hertz
+    this.audio.linkDevice(this.testNode);
     this.testNode.start();
   }
 }

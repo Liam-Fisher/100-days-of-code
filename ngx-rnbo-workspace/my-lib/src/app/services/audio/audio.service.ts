@@ -1,97 +1,44 @@
-import { Injectable, NgZone, computed, effect, signal } from '@angular/core';
+import { Injectable,  signal } from '@angular/core';
+import { IAudioService } from './interface';
+import { createAudioGraph, setState } from './helpers/audio-context';
+import { createInputNode, createOutputNode, linkDevice, setInputGain, setOutputGain, unlinkDevice } from './helpers/audio-nodes';
+import { ctx_state } from './signals';
 
 @Injectable({
   providedIn: 'root'
 })
-export class AudioService {
+export class AudioService implements IAudioService {
   context: AudioContext|null = null;
-  isLoaded = computed<boolean>(() => this.context !== null && this.context?.state === 'running');
-  adc: MediaStreamAudioSourceNode|null = null;
+  src_node: AudioNode|null = null;
+  device_node: AudioNode|null = null;
+  dest_node: AudioNode|null = null;
   gain_in!: GainNode;
   gain_out!: GainNode;
-  gain_out_value!: AudioParam;
-  gain_smooth = 0.1;
-  constructor(public ngZone: NgZone) { }
+  gain_smooth = 0.05;
 
-  get loadedContext() {
-    if(!this.context || this.context.state !== 'running') return null;
-    return this.context;
-  }
-  get dac() {
-    return this.loadedContext?.destination??null;
-  }
-  async createAdc() {
-    if(!this.loadedContext) return;
-    const userMicrophone = await navigator.mediaDevices.getUserMedia({ audio: true });
-    if(!userMicrophone) return;
-    this.adc = this.loadedContext.createMediaStreamSource(userMicrophone);
-  }
-  async createAudioContext(context: AudioContext|null) {
-    if(context === null) {
-      context = new AudioContext();
-      console.log('created new audio context');
-    }
-    console.log('resuming audio context');
-    await context.resume();
-    this.context = context;
-    console.log('audio context resumed');
-    this.gain_in = context.createGain();
-    this.gain_in.gain.setValueAtTime(0.1, 0);
-    this.gain_out = context.createGain();
-    this.gain_out_value = this.gain_out.gain;
-    console.log(` gain out param:`, this.gain_out_value);
-  }
-  linkGainIO(node: AudioNode) {
-    if(!this.gain_in || !this.gain_out) return;
-    if(node.numberOfInputs > 0) {
-      console.log('connecting node to gain in');
-      this.gain_in.connect(node);
-    }
-    if(node.numberOfOutputs > 0) {
-      console.log('connecting gain out to node');
-      node.connect(this.gain_out);
-    }
-  }
-  unlinkGainIO(node: AudioNode) {
-    this.gain_in.disconnect(node);
-    node.disconnect(this.gain_out);
-  }
-  routeOut() {
-    if(!this.dac) return;
-    this.gain_out.connect(this.dac);
-  }
-  removeRouteOut() {
-    if(!this.dac) return;
-    this.gain_out.disconnect(this.dac);
-  }
-  async routeIn() {
-    if(!this.adc) await this.createAdc();
-    if(!this.adc) return;
-    this.adc.connect(this.gain_in);
-  }
-  async removeRouteIn() {
-    if(!this.adc) await this.createAdc();
-    if(!this.adc) return;
-    this.adc.disconnect(this.gain_in);
-  }
-  normalizeGain(v: number) {
-    return Math.max(-96, Math.min(12, 20 * Math.log10(v*0.99+0.001)));
-  }
-  setInputGain(value: number) {
-    let t = this.context?.currentTime ?? null;
-    if(t === null) return;
-    console.log(`setting input gain to ${value}`);
-    console.log(`current time: ${t}`);
-  }
-  setOutputGain(tgt: number) {
-    this.ngZone.runOutsideAngular(() => {
-      let t = this.context?.currentTime ?? null;
-      if(t === null) return;
-      let val = this.gain_out.gain.value;
-      this.gain_out.gain.setValueAtTime(val, t);
-      this.gain_out.gain.linearRampToValueAtTime(tgt, t+1);
-      setTimeout(() => console.log(`ramp to ${tgt} from ${val} completed at time ${t}`), 1000);
-    });
-  }
+  state = signal<'running'|'suspended'|'closed'> ('closed');
+
+  createAudioGraph: IAudioService["createAudioGraph"] = createAudioGraph.bind(this);
+  createInputNode: IAudioService["createInputNode"] = createInputNode.bind(this);
+  createOutputNode: IAudioService["createOutputNode"] = createOutputNode.bind(this);
+  
+  setInputGain: IAudioService["setInputGain"] = setInputGain.bind(this);
+  setOutputGain: IAudioService["setOutputGain"] = setOutputGain.bind(this);
+
+  linkDevice: IAudioService["linkDevice"] = linkDevice.bind(this);
+  unlinkDevice: IAudioService["unlinkDevice"] = unlinkDevice.bind(this);
+
+  setState: IAudioService["setState"] = setState.bind(this);
+  
+  constructor() { }
+  initContext(context: AudioContext|null) {
+    if(context === null) return; 
+  this.context = context;
+  console.log('audio context initialized');
+  this.context.onstatechange = () => {
+      ctx_state.set(this.context?.state??'closed');
+      console.log('audio context state changed to '+this.context?.state);
+  };
+}
 
 }

@@ -1,18 +1,19 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { AudioControlPanelComponent } from './components/audio/audio-control-panel/audio-control-panel.component';
+import { RnboDeviceComponent } from './components/rnbo-device/rnbo-device.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, AudioControlPanelComponent],
+  imports: [RouterOutlet, RnboDeviceComponent],
   template: `
   <h1> my lib </h1>
-  <ngx-audio-control-panel></ngx-audio-control-panel>
+  <ngx-rnbo-device [audioCtx]="ctx"></ngx-rnbo-device>
   `
 })
 export class AppComponent {
-  title = 'my-lib';
+title = 'my-lib';
+ctx = new AudioContext();
 constructor() { }
 
 }
