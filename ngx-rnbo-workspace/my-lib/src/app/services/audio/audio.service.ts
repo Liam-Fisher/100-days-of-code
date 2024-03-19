@@ -8,7 +8,7 @@ import { ctx_state } from './signals';
   providedIn: 'root'
 })
 export class AudioService implements IAudioService {
-  context: AudioContext|null = null;
+  context!: AudioContext;
   src_node: AudioNode|null = null;
   device_node: AudioNode|null = null;
   dest_node: AudioNode|null = null;
@@ -17,7 +17,7 @@ export class AudioService implements IAudioService {
   gain_smooth = 0.05;
 
   state = signal<'running'|'suspended'|'closed'> ('closed');
-
+  isLoaded = signal<boolean>(false); // this is a signal because we want to wait for the audio context to be loaded properly, i.e. via user click before we start loading devices
   createAudioGraph: IAudioService["createAudioGraph"] = createAudioGraph.bind(this);
   createInputNode: IAudioService["createInputNode"] = createInputNode.bind(this);
   createOutputNode: IAudioService["createOutputNode"] = createOutputNode.bind(this);
@@ -31,14 +31,4 @@ export class AudioService implements IAudioService {
   setState: IAudioService["setState"] = setState.bind(this);
   
   constructor() { }
-  initContext(context: AudioContext|null) {
-    if(context === null) return; 
-  this.context = context;
-  console.log('audio context initialized');
-  this.context.onstatechange = () => {
-      ctx_state.set(this.context?.state??'closed');
-      console.log('audio context state changed to '+this.context?.state);
-  };
-}
-
 }

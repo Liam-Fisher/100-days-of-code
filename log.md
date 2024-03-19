@@ -18,3 +18,17 @@ I also copied a bunch of type definitions from other projects (didn;t count this
 
 Also getting more comfortable with writing prompts for Copilot Chat, it's a fine line to decide at what point I should trust the answer but I usually have faith in my little buddy. I've found that asking specific questions about a UX flow, i.e. if this button was clicked, which audio context would be started? is better than a confirmation type question, i.e. "will this start the audio context for all devices?" . Copilot will be your yes-man for sure, but that's probably a learned behavior .
 
+### Day 2: March 18th, 2024
+##### Audio Service Snafu 2
+
+**Today's "Progress"**: today was faily unproductive but I enjoyed writing code at least. Tried to figure out a system to allow the "smooth" connecting and disconnecting of audio nodes but when I tested it it didn't exactly work. Whenever as you disconnect parts of a signal chain there will always be "pops", even if you try and fade the channel out first. At least the fading part worked! And I got an excuse to make my first branch (just in case I can use it for something else). I ended up letting it go, and deciding that the consumer should provide the AudioContext object, and the library will handle everything else. You should usually only be using 1 audio context anyway, and this pattern makes it more like a wrapper for the device object itself (which takes patcher and context arguments).  
+
+
+**Thoughts:**: I've noticed that I end up getting a little carried away when writing code, especially in terms of organizing and refactoring. I wasted a lot of time re-re-factoring code yesterday and it was incredibly frustrating! I've been working on planning better but I need to do it more thoroughly! I'm going to add diagram modeling to my learning list, I really enjoying block code programming (that's basically what RNBO is) amd hopefully that'll make my planning a little more clear. 
+
+### Day 2: March 19th, 2024
+##### Patcher Success
+
+**Today's Progress**: Felt pretty good about today. Wrote a function for turning the RNBO device into a custom version and automatically connect all the audio nodes use, although I had some existing code to help. Also solved the audio context provider problem, and library consumers can now provide a context external, or access an automatically provided context. Still don't have the option for mutiple contexts, but this probably isn't a good idea anyway. Didn't get to figuring out diagramming software, the free online tool I found was a little intimidating and I just sorta blanked. I'll have to stick with paper and markdown files for now. 
+
+**Thoughts:** I've been dealing with my Signals vs Observables problem by simply using both. This has made my code base a little more bloated but much easier to work with. 

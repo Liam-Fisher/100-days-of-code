@@ -2,14 +2,13 @@ import { Component, computed, inject } from '@angular/core';
 import { AudioService } from '../../../services/audio/audio.service';
 import { RnboDeviceService } from '../../../services/device/rnbo-device.service';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { ctx_state } from '../../../services/audio/signals';
 
 @Component({
   selector: 'ngx-audio-control-panel',
   standalone: true,
   imports: [ReactiveFormsModule],
   template: `
-  <button (click)="loadContext()">{{closed()? 'load': 'reload'}}</button>
+  <button (click)="loadContext()">{{audio.isLoaded()? 'reload': 'load'}}</button>
   
   @if(!closed())  {
   <input #ctx type="checkbox" [checked]="running()" name="pausePlayContext" (change)="toggleContext(ctx.checked? 'running' : 'suspended')" />
@@ -29,16 +28,18 @@ import { ctx_state } from '../../../services/audio/signals';
   styles: ``
 })
 export class AudioControlPanelComponent {
-  state = computed(() => ctx_state()??'closed');
+  audio = inject(AudioService);
+  state = computed(() => this.audio.state()??'closed');
   running = computed(() => this.state() === 'running');
   closed = computed(() => this.state() === 'closed');
-  deviceService = inject(RnboDeviceService);
+  device = inject(RnboDeviceService);
   testNode!: OscillatorNode;
   inputGainControl = new FormControl(0, {nonNullable: true});
   outputGainControl = new FormControl(0, {nonNullable: true});
   
+  
 
-  audio = inject(AudioService);
+  
 
   constructor() { 
     this.inputGainControl.valueChanges.subscribe((value) => {
@@ -62,7 +63,7 @@ export class AudioControlPanelComponent {
     await this.audio.setState(state);
   }
   async loadContext() {
-    await this.audio.createAudioGraph(this.deviceService.device());
+    this.audio.isLoaded.set(true);
   }
   doTest()  {
     let ctx = this.audio.context;

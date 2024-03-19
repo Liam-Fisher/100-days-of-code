@@ -4,12 +4,11 @@ import { baseLatency, ctx_state, gain_in, gain_out, outputLatency } from "../sig
 
 
 
-export async function createAudioGraph(this: IAudioService, device: NgxDevice|null) {
+export async function createAudioGraph(this: IAudioService, device: NgxDevice) {
 
-    let deviceNode = device?.node;
     let context = this.context;
     if(!context) throw new Error('audio context is not loaded');
-    if(ctx_state()!=='running') {
+    if(this.state()!=='running') {
         await this.setState('running');
     }   
     let src = this.src_node;
@@ -25,11 +24,8 @@ export async function createAudioGraph(this: IAudioService, device: NgxDevice|nu
 
     baseLatency.set(context?.baseLatency??-1);
     outputLatency.set(context?.outputLatency??-1);
-
-    if(deviceNode){
-    this.linkDevice(deviceNode);
-    }
-
+    this.linkDevice(device.node);
+    this.isLoaded.set(true);
 } 
 
 export async function setState(this: IAudioService, state: 'running'|'suspended'|'closed') {
@@ -37,22 +33,32 @@ export async function setState(this: IAudioService, state: 'running'|'suspended'
     
     if(!context) throw new Error('audio context is not defined');
 
-    if(ctx_state()===state) {
+    if(this.state()===state) {
         console.log('audio context is already in this state');
         return;
     }
-
+    console.log('setting audio context state '+state);
+    this.state.set(state);
     switch(state) {
-        case 'running':
-            ctx_state.set('running');
-            return await context.resume();
         case 'suspended':
-            ctx_state.set('suspended');
-            return await context.suspend();
-        default:
-            ctx_state.set('closed');
-            await context?.close();
+            await context.suspend();
+            return;
+        case 'closed':
             this.unlinkDevice();
+            this.isLoaded.set(false);
+            return;
+        case 'running':
+            try {
+                await context.resume();
+                this.isLoaded.set(true);
+            } 
+            catch (e) {
+                console.error('error resuming audio context', e);
+            }
+            return;
+        default:
+            console.error('invalid state', state);
+            return;
         }
 }
 

@@ -1,4 +1,4 @@
-import { Component, EffectRef, Input, computed, effect, inject, input, model, signal } from '@angular/core';
+import { Component, EffectRef, EventEmitter, Input, Signal, computed, effect, inject, input, model, signal, untracked, viewChild } from '@angular/core';
 import { AudioService } from '../../services/audio/audio.service';
 import { RnboDeviceService } from '../../services/device/rnbo-device.service';
 import { NgxPatcher } from '../../types/patcher';
@@ -6,32 +6,34 @@ import { PresetAction } from '../../types/preset';
 import { Subject } from 'rxjs';
 import { PortMessage } from '../../types/messaging';
 import { TimingMesssage } from '../../types/timing';
-import * as audioSig from '../../services/audio/signals';
 import { AudioControlPanelComponent } from '../audio/audio-control-panel/audio-control-panel.component';
+import { MatSelect, MatSelectModule } from '@angular/material/select';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'ngx-rnbo-device',
   standalone: true,
-  providers: [AudioService, RnboDeviceService],
-  imports: [AudioControlPanelComponent],
+  providers: [RnboDeviceService],
+  imports: [AudioControlPanelComponent, ReactiveFormsModule],
   template: `
     <ngx-audio-control-panel></ngx-audio-control-panel>
+  
+    <select #selectPatcher [formControl]="patcherSelectionControl">
+  @for (item of patcherList(); track $index) {
+    <option [value]="item">{{item}}</option>
+  }
+  </select>
   `,
   styles: ``
 })
 export class RnboDeviceComponent {
+  // loading events
+
   audio = inject(AudioService);
   // was having trouble using a signal for this... but let's try it again
-  audioCtx =  input<AudioContext|null>(null); // the audio context 
-  ctxChange = effect(() => {
-    this.audio.initContext(this.audioCtx());
-  });
-  audioInputGain = audioSig.gain_in; // the input gain node
-  audioOutputGain = audioSig.gain_out; // the output gain node
-  
+  customAudioContext =  input<AudioContext|null>(null); // the audio context 
+  ctxChange = effect(() =>  this.audio.context = this.customAudioContext() ?? new AudioContext());
   device = inject(RnboDeviceService);
-  deviceNode = computed(() => this.device.device()?.node??null);
-
    
   /// think we're going to get these from the preset component using queries 
 
@@ -41,9 +43,46 @@ export class RnboDeviceComponent {
   // presetIDs = computed(() => Array.from(this.presetService.ids()??[]));
 
 
+  
   patcherList = input<string[]>([]);
+  // patcherSelection = model<string>(''); // a consumer can select a patcher by name or index, or listen to user selection and load the patcher
+  patcherSelectionControl = new FormControl('', {nonNullable: true});
+  
+  // a consumer can select a patcher by name or index, or listen to user selection and load the patcher
+  patcherSelectionChange = this.patcherSelectionControl.valueChanges.subscribe((id: string) => {
+    console.log('patcher selection change', id);
+      if(this.patcherList().includes(id)) {
+        this.audio.isLoaded.set(true);
+        this.patcherSelectionSignal.set(id);
+        this.patcherSelectionEvent.emit(id);
+      }
+  });
+  patcherSelectionSignal = signal<string>('untitled');
+  patcherSelectionEvent = new EventEmitter<string>();
   patcher = input<string|NgxPatcher|null>(null);
-  patcherSelection = model<string>(''); // a consumer can select a patcher by name or index, or listen to user selection and load the patcher
+
+    // here's the atepmted signal version
+/* 
+  // patcherSelection = model<string>(''); // a consumer can select a patcher by name or index, or listen to user selection and load the patcher
+  loadAudioOnPatcherSelection = effect(() => {
+    let id = this.patcherSelection();
+    let patcherList = this.patcherList();
+      if(patcherList.includes(id)) {
+        this.audio.isLoaded.set(true);
+      }
+  }, {allowSignalWrites: true});
+ */
+  loadDeviceOnUserInteraction = effect(() => {
+    console.log('loading device on user interaction');
+    if(this.audio.isLoaded()) {
+      let p = this.patcher();
+      let id = untracked(this.patcherSelectionSignal);
+        if(p) {
+          this.device.load(id, p);
+        }
+      }
+  }, {allowSignalWrites: true});
+
 
   messageInput = new Subject<PortMessage>(); // message to the device, we'll pipe this to the top-level messaging component 
   messsageOutput = new Subject<PortMessage>(); // message from the device, we'll listen to the top-level messaging component to get these
@@ -63,15 +102,17 @@ export class RnboDeviceComponent {
   // presetSelection = model<string>(''); // a consumer can select a preset by name or index, or listen to user selection and load the preset
 
   timingInput = new Subject<TimingMesssage>(); // the timing input channel
+
+
+
   
 
   // Still need Buffer and Parameter attributes.
   constructor() { }
-  set audioContext(ctx: AudioContext) {
-    this.audio.initContext(ctx);
-  }
-  setInputGain(gain: number) {
+  set inputGain(gain: number) {
     this.audio.setInputGain(gain);
   }
-
+  set outputGain(gain: number) {
+    this.audio.setOutputGain(gain);
+  }
 }
