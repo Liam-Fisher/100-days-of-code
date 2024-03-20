@@ -9,6 +9,8 @@ import { TimingMesssage } from '../../types/timing';
 import { AudioControlPanelComponent } from '../audio/audio-control-panel/audio-control-panel.component';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RnboMessagingService } from '../../services/messaging/rnbo-messaging-service.service';
+import { RnboParametersService } from '../../services/parameters/rnbo-parameters.service';
+import { RnboParametersViewComponent } from '../parameters/rnbo-parameters-view.component';
 
 @Component({
   selector: 'ngx-rnbo-device',
@@ -26,9 +28,18 @@ import { RnboMessagingService } from '../../services/messaging/rnbo-messaging-se
       provide: RnboMessagingService,
       useFactory: () => new RnboMessagingService(inject(RnboDeviceService)),
       deps: [RnboDeviceService]
+    },
+    {
+      provide: RnboParametersService,
+      useFactory: () => new RnboParametersService(inject(RnboDeviceService)),
+      deps: [RnboDeviceService]
     }
   ],
-  imports: [AudioControlPanelComponent, ReactiveFormsModule],
+  imports: [
+    ReactiveFormsModule, 
+    AudioControlPanelComponent,
+    RnboParametersViewComponent
+  ],
   template: `
     <ngx-audio-control-panel></ngx-audio-control-panel>
   
@@ -37,7 +48,7 @@ import { RnboMessagingService } from '../../services/messaging/rnbo-messaging-se
     <option [value]="item">{{item}}</option>
   }
   </select>
-
+  <ngx-rnbo-parameters-view></ngx-rnbo-parameters-view>
   `,
   styles: ``
 })
@@ -70,6 +81,10 @@ export class RnboDeviceComponent {
         this.audio.isLoaded.set(true);
         this.patcherSelectionSignal.set(id);
         this.patcherSelectionEvent.emit(id);
+      }
+      else {
+        console.log(`patcher ${id} not found`);
+        console.log('patcher list', this.patcherList());
       }
   });
 

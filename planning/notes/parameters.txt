@@ -1,0 +1,5 @@
+// GUI options:
+
+a lookup for parameter names, and a parameter container for the selected parameter container
+a display for all parameters
+a toggle between parameters 

@@ -12,12 +12,12 @@ import { NgxPatcher } from './types/patcher';
   providers: [HttpClient],
   template: `
   <h1> my lib </h1>
-  <ngx-rnbo-device [patcher]="testPatcher" [patcherList]="fileNames()" ></ngx-rnbo-device>
+  <ngx-rnbo-device [patcher]="testPatcher()" [patcherList]="fileNames()" (patcherSelectionEvent)="getFile($event)"></ngx-rnbo-device>
   `
 })
 export class AppComponent {
 title = 'my-lib';
-testPatcher = test as unknown as NgxPatcher; 
+testPatcher = signal<NgxPatcher>(test as unknown as NgxPatcher); 
 fileNames = signal<string[]>([
   'featureTesting',
   'iter_test',
@@ -27,9 +27,10 @@ fileNames = signal<string[]>([
 http = inject(HttpClient);  
 constructor() { }
 
-getFile(name: string) {
-  this.http.get<NgxPatcher>(`./assets/${name}.export.json`).subscribe((data) => {
-    this.testPatcher = data;
+getFile(name: any) {
+  console.log(`getting file ${name}`);
+  this.http.get<NgxPatcher>(`./assets/${name as string}.export.json`).subscribe((data) => {
+      this.testPatcher.set(data);
     }); 
   }
 }

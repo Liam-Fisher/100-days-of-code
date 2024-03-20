@@ -30,7 +30,7 @@ export type ParameterAddress = {
     instances: number[]; // if this is a polyphonic parameter, this will be an array of the parameter ids for each instance, else it will be an empty array
 }
 export type ParameterMeta = any;
-export type NgxParameter = Parameter&Partial<{
+export type INgxParameter = Parameter&Partial<{
     meta: Partial<ParameterMeta>;
     flags: Partial<ParameterFlags>;
     address: Partial<ParameterAddress>
