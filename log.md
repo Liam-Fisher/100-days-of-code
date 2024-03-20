@@ -26,9 +26,18 @@ Also getting more comfortable with writing prompts for Copilot Chat, it's a fine
 
 **Thoughts:**: I've noticed that I end up getting a little carried away when writing code, especially in terms of organizing and refactoring. I wasted a lot of time re-re-factoring code yesterday and it was incredibly frustrating! I've been working on planning better but I need to do it more thoroughly! I'm going to add diagram modeling to my learning list, I really enjoying block code programming (that's basically what RNBO is) amd hopefully that'll make my planning a little more clear. 
 
-### Day 2: March 19th, 2024
+### Day 3: March 19th, 2024
 ##### Patcher Success
 
 **Today's Progress**: Felt pretty good about today. Wrote a function for turning the RNBO device into a custom version and automatically connect all the audio nodes use, although I had some existing code to help. Also solved the audio context provider problem, and library consumers can now provide a context external, or access an automatically provided context. Still don't have the option for mutiple contexts, but this probably isn't a good idea anyway. Didn't get to figuring out diagramming software, the free online tool I found was a little intimidating and I just sorta blanked. I'll have to stick with paper and markdown files for now. 
 
 **Thoughts:** I've been dealing with my Signals vs Observables problem by simply using both. This has made my code base a little more bloated but much easier to work with. 
+
+### Day 4: March 20th, 2024
+##### Buffering...
+
+**Today's Progress:** Not too much today, started making a Buffer Service and ended up coding a class that basically does all the work, with the Service used for loading and passing around ui signals .
+
+
+**Thoughts:** didn't count it towards my hour, but i spent about 30 mins in max making a test rnbo device for the basic features (including buffers). kind of concerned about how the biffer ui design is going to go, there's a lot of possibilities but given that i've decided to do a mobile first design approach to the gui, i think I'll just stick with a display, and the option to load buffers from disk/url . maybe add a similar pattern to the patcher loading where a parent component can set a list of available options for buffers ? then handle the loading, as well as passing the data back to the buffer-view component. 
+
