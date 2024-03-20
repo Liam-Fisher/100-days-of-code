@@ -1,32 +1,39 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { NgxDevice } from '../../types/device';
 import { BeatTimeEvent, MIDIData, MIDIEvent, MessageEvent, TempoEvent, TimeSignatureEvent, TransportEvent } from '@rnbo/js';
 
 import { AudioService } from '../audio/audio.service';
 import { NgxPatcher } from '../../types/patcher';
 import { load } from './helpers/load';
+import { TaggedDataRef } from '../../types/buffers';
 
 @Injectable()
 export class RnboDeviceService {
   sig = signal<NgxDevice|null>(null);
   audio = inject(AudioService);
   isLoaded = signal<boolean>(false);
+  bufferRefs = computed<TaggedDataRef[]>(() => (this.sig()?.dataBufferDescriptions??[]) as TaggedDataRef[]);
   load: (id: string, p: string|NgxPatcher) => Promise<void> = load.bind(this);
   constructor() { }
-  
-  scheduleMessage(tag: string, payload: number[], time = 0) {
+  async getDataBuffer(id: string) {
+    return (await this.sig()?.releaseDataBuffer(id))??null;
+  }
+  async setDataBuffer(id: string, buffer: AudioBuffer) {
+    await this.sig()?.setDataBuffer(id, buffer);
+  }
+  scheduleMessageEvent(time: number, tag: string, payload: number[]) {
     this.sig()?.scheduleEvent(new MessageEvent(time, tag, payload));
 }
-  scheduleMidiEvent(data: number[], time = 0, port = 0) {
+  scheduleMidiEvent(time: number, port = 0, data: number[]) {
     this.sig()?.scheduleEvent(new MIDIEvent(time, port, data as MIDIData));
   }
-  scheduleBeatTimeChange(beatTime: number, time = 0) {  
+  scheduleBeatTimeChange(time: number, beatTime: number) {  
     this.sig()?.scheduleEvent(new BeatTimeEvent(time, beatTime));
   }
-  scheduleTransportChange(transport: 0|1, time = 0) {
+  scheduleTransportChange(time: number, transport: 0|1) {
     this.sig()?.scheduleEvent(new TransportEvent(time, transport));
   }
-  scheduleTimeSignatureChange(beatsPerMeasure: number, beatUnit: number, time = 0) {
+  scheduleTimeSignatureChange(time: number, beatsPerMeasure: number, beatUnit: number) {
     this.sig()?.scheduleEvent(new TimeSignatureEvent(time, beatsPerMeasure, beatUnit));
   }
   scheduleTempoChange(tempo: number, time = 0) {

@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { RnboDeviceComponent } from './components/rnbo-device/rnbo-device.component';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import * as test from './examplePatchers/loop.export.json';
+import * as test from './examplePatchers/feature_test_mono.export.json';
 import { NgxPatcher } from './types/patcher';
 
 @Component({

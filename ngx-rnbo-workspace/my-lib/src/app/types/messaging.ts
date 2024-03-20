@@ -9,11 +9,12 @@ export type InputMessage = {
 type UIType = 'line' | 'filter' | '';
 
 // export type PortMessage = [string, undefined|string|number|number[]];
-export interface PortMessage {
+export interface IPortMessage {
   time?: number;
   tag: string;
-  payload: number[];
+  payload: number[]|number|string|undefined;
 } 
+export type PortMessage = [ time: number, tag: string, payload: number[]];
 export interface NgxPortInfo {
   index?: number;
   tag: string;

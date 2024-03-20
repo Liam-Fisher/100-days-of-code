@@ -1,19 +1,33 @@
-import { Component, EffectRef, EventEmitter, Input, Signal, computed, effect, inject, input, model, signal, untracked, viewChild } from '@angular/core';
+import { Component, EventEmitter, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { AudioService } from '../../services/audio/audio.service';
 import { RnboDeviceService } from '../../services/device/rnbo-device.service';
 import { NgxPatcher } from '../../types/patcher';
 import { PresetAction } from '../../types/preset';
 import { Subject } from 'rxjs';
-import { PortMessage } from '../../types/messaging';
+import { IPortMessage, PortMessage } from '../../types/messaging';
 import { TimingMesssage } from '../../types/timing';
 import { AudioControlPanelComponent } from '../audio/audio-control-panel/audio-control-panel.component';
-import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { RnboMessagingService } from '../../services/messaging/rnbo-messaging-service.service';
 
 @Component({
   selector: 'ngx-rnbo-device',
   standalone: true,
-  providers: [RnboDeviceService],
+  providers: [
+    {
+      provide: AudioService,
+      useClass: AudioService
+    },
+    {
+      provide: RnboDeviceService,
+      useClass: RnboDeviceService
+    },
+    {
+      provide: RnboMessagingService,
+      useFactory: () => new RnboMessagingService(inject(RnboDeviceService)),
+      deps: [RnboDeviceService]
+    }
+  ],
   imports: [AudioControlPanelComponent, ReactiveFormsModule],
   template: `
     <ngx-audio-control-panel></ngx-audio-control-panel>
@@ -23,6 +37,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
     <option [value]="item">{{item}}</option>
   }
   </select>
+
   `,
   styles: ``
 })
@@ -57,6 +72,7 @@ export class RnboDeviceComponent {
         this.patcherSelectionEvent.emit(id);
       }
   });
+
   patcherSelectionSignal = signal<string>('untitled');
   patcherSelectionEvent = new EventEmitter<string>();
   patcher = input<string|NgxPatcher|null>(null);
@@ -83,9 +99,7 @@ export class RnboDeviceComponent {
       }
   }, {allowSignalWrites: true});
 
-
-  messageInput = new Subject<PortMessage>(); // message to the device, we'll pipe this to the top-level messaging component 
-  messsageOutput = new Subject<PortMessage>(); // message from the device, we'll listen to the top-level messaging component to get these
+  messaging = inject(RnboMessagingService);
 
   // will this work with signals?
   //messageInput = input<PortMessage>(); // the message input channel
@@ -114,5 +128,16 @@ export class RnboDeviceComponent {
   }
   set outputGain(gain: number) {
     this.audio.setOutputGain(gain);
+  }
+  set inputMessage(m: PortMessage|IPortMessage) {
+    if(Array.isArray(m)) {
+      this.messaging.inport.next(m);
+    }
+    else {
+      this.messaging.input = m;
+    }
+  }
+  get outputMessage() {
+    return this.messaging.outport;
   }
 }

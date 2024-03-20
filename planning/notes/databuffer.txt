@@ -1,0 +1,10 @@
+// Need:
+// Buffer Input capability
+// should be able to set the buffer from the parent component of ngx-buffer-view
+// Buffer Output capability
+// should be able to get the buffer from the parent component of ngx-buffer-view
+
+
+
+// AudioBuffers are not linked to data
+// the length of Float32Arrays is not mutable, but their data is.

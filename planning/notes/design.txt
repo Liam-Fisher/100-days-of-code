@@ -1,0 +1,7 @@
+A couple high level design notes:
+
+// Presets
+Think I'm going to use the GUI designs in Max as much as possible, at least for the non-mobile version. This'll be an interesting challenge to try an implement with Angular Material CDK
+
+// Buffers
+going to say that
