@@ -11,7 +11,7 @@ import { RnboParametersService } from '../../services/parameters/rnbo-parameters
       <ngx-parameter-container 
       #container 
       [param]="params.byId(addr.id)" 
-      [displayName]="params.displayLabel(addr)"
+      [displayName]="params.displayNameLabel(addr)"
       ></ngx-parameter-container>
   }
   `,

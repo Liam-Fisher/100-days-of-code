@@ -8,21 +8,22 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
   standalone: true,
   imports: [ReactiveFormsModule],
   template: `
-  <button (click)="loadContext()">{{audio.isLoaded()? 'reload': 'load'}}</button>
   
-  @if(!closed())  {
-  <input #ctx type="checkbox" [checked]="running()" name="pausePlayContext" (change)="toggleContext(ctx.checked? 'running' : 'suspended')" />
-  <label for="pausePlayContext">audio is {{state()}}</label>
+  @if(audio.isReady())  {
+    <input #ctx type="checkbox" [checked]="running()" name="pausePlayContext" (change)="toggleContext(ctx.checked ? 'running' : 'suspended')" />
+    <label for="pausePlayContext">audio is {{state()}}</label>
   
-  <button (click)="doTest()">test</button>
   <div>
-  <input name="inputGain" type="range" min="0" max="1" step="0.01" [formControl]="inputGainControl" />
-  <label for="inputGain">Input Gain</label>
+    <input name="inputGain" type="range" min="0" max="1" step="0.01" [formControl]="inputGainControl" />
+    <label for="inputGain">Input Gain</label>
   </div>  
   <div>
-  <input name="outputGain" type="range" min="0" max="1" step="0.01" [formControl]="outputGainControl" />
-  <label for="outputGain">Output Gain</label>
+    <input name="outputGain" type="range" min="0" max="1" step="0.01" [formControl]="outputGainControl" />
+    <label for="outputGain">Output Gain</label>
   </div>
+  }
+  @else {
+    <button (click)="loadContext()">{{audio.isReady()? 'reload': 'load'}}</button>
   }
   `,
   styles: ``
@@ -33,7 +34,6 @@ export class AudioControlPanelComponent {
   running = computed(() => this.state() === 'running');
   closed = computed(() => this.state() === 'closed');
   device = inject(RnboDeviceService);
-  testNode!: OscillatorNode;
   inputGainControl = new FormControl(0, {nonNullable: true});
   outputGainControl = new FormControl(0, {nonNullable: true});
   
@@ -63,15 +63,6 @@ export class AudioControlPanelComponent {
     await this.audio.setState(state);
   }
   async loadContext() {
-    this.audio.isLoaded.set(true);
-  }
-  doTest()  {
-    let ctx = this.audio.context;
-    if(ctx === null) return;
-    this.testNode = ctx.createOscillator();
-    this.testNode.type = "sawtooth";
-    this.testNode.frequency.setValueAtTime(220, ctx.currentTime); // value in hertz
-    this.audio.linkDevice(this.testNode);
-    this.testNode.start();
+    this.audio.isReady.set(true);
   }
 }

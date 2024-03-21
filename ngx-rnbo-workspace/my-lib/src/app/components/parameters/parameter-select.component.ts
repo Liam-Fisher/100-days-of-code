@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { NgxParameter } from '../../services/parameters/helpers/ngxparameter';
 
 @Component({
@@ -17,6 +17,7 @@ import { NgxParameter } from '../../services/parameters/helpers/ngxparameter';
 })
 export class ParameterSelectComponent {
   param = input.required<NgxParameter>();
-  constructor() {
+  paramFormControl = new FormControl<number>(0, {nonNullable: true});
+  constructor() { 
   }
 }

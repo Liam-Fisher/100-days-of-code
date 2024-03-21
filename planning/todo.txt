@@ -24,3 +24,10 @@ Ordered:
 
 Unordered: 
 
+
+Parameters :
+
+Add binding methods for subjects ( NO SIGNALS )
+Fix input subject so it works with normalized/denormalized values for NumberParameters, and string/integer values for EnumParameters.
+Should be able to call a bindToParameter(id: string, subject: BehaviorSubject<number|string>)    
+

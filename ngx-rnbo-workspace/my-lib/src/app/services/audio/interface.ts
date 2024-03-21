@@ -10,7 +10,7 @@ export interface IAudioService {
     gain_in: GainNode;
     gain_out: GainNode;
     gain_smooth: number;
-    isLoaded: WritableSignal<boolean>;  
+    isReady: WritableSignal<boolean>;  
     
     createAudioGraph: (device: NgxDevice) => Promise<void>;
     createInputNode: (src: AudioNode|null) => Promise<void>;

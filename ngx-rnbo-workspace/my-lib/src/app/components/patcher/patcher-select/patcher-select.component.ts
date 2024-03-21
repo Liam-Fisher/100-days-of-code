@@ -1,21 +1,23 @@
-import { Component, input, viewChild } from '@angular/core';
+import { Component, input, model, viewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { MatSelect, MatSelectModule } from '@angular/material/select';
+import { filter } from 'rxjs';
 @Component({
   selector: 'ngx-patcher-select',
   standalone: true,
-  imports: [MatSelectModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   template: `
-  <mat-select [formControl]="patcherSelectControl">
-  @for (item of patcherList(); track $index) {
-    <mat-option [value]="item">{{item}}</mat-option>
-  }
-  </mat-select>
+  <select #selectPatcher [formControl]="patcherSelectControl" >
+@for (item of patcherList(); track $index) {
+  <option [value]="item">{{item}}</option>
+}
+</select>
   `,
   styles: ``
 })
 export class PatcherSelectComponent {
-  patcherList = input<string[]>([]);
-  patcherSelectControl = new FormControl('', {nonNullable: true});
+  patcherList = input.required<string[]>();
+  protected patcherSelectControl = new FormControl('', {nonNullable: true});
+  $patcherSelectControl = this.patcherSelectControl.valueChanges;
+  
   
 }

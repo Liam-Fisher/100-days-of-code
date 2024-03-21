@@ -1,6 +1,6 @@
 
 import { NgxDevice } from '../../types/device';
-
+import { MessageEvent, MIDIEvent, BeatTimeEvent, TransportEvent, TimeSignatureEvent, TempoEvent , MIDIData} from '@rnbo/js';
 import { AudioService } from '../audio/audio.service';
 import { NgxPatcher } from '../../types/patcher';
 import { load } from './helpers/load';

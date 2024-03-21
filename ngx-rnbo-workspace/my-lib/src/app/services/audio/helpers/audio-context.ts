@@ -25,7 +25,7 @@ export async function createAudioGraph(this: IAudioService, device: NgxDevice) {
     baseLatency.set(context?.baseLatency??-1);
     outputLatency.set(context?.outputLatency??-1);
     this.linkDevice(device.node);
-    this.isLoaded.set(true);
+    this.isReady.set(true);
 } 
 
 export async function setState(this: IAudioService, state: 'running'|'suspended'|'closed') {
@@ -44,13 +44,12 @@ export async function setState(this: IAudioService, state: 'running'|'suspended'
             await context.suspend();
             return;
         case 'closed':
+            await context.close();
             this.unlinkDevice();
-            this.isLoaded.set(false);
             return;
         case 'running':
             try {
                 await context.resume();
-                this.isLoaded.set(true);
             } 
             catch (e) {
                 console.error('error resuming audio context', e);

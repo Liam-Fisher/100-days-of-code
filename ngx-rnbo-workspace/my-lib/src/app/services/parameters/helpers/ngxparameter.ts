@@ -2,17 +2,23 @@ import { FormControl } from "@angular/forms";
 import { INgxParameter } from "../../../types/parameter";
 import { IEventSubscription } from "@rnbo/js";
 import { BehaviorSubject, Subscription } from "rxjs";
-import { computed, model, signal } from "@angular/core";
+import { Inject, Injector, computed, effect, input, model, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 
 export class NgxParameter {
 
     isLinked = new BehaviorSubject<boolean>(false);
     sig = signal<INgxParameter|null>(null);
+    
     formControl = new FormControl<number>(0, {nonNullable: true});
+    
     normalizedValue = signal<number>(0);
     denormalizedValue = computed<number>(() => this.denormalize(this.normalizedValue()));
+
     valueLabel = computed<string>(() => `${this.denormalizedValue().toFixed(this.precision())}${this.unit()}`);
+
+    inputSubject = new BehaviorSubject<number>(0);
+    $inputSubject!: Subscription;
 
     changeSubscription!: IEventSubscription;
     controlSubscription!: Subscription;
@@ -34,21 +40,37 @@ export class NgxParameter {
     }
     set param(p: INgxParameter) {
         this.sig.set(p);
-        this.linkToControl();
+        this.linkControl();
     }
-    linkToControl() {
-        this.reset();
+    subscribe(Fn: (v: number) => void) {
+        this.sig().changeEvent.subscribe(Fn);
+    }
+    linkControl() {
+        this.unlinkControl();
+        
+        this.$inputSubject = this.inputSubject.subscribe((v: number) => {
+          this.normalizedValue.set(this.normalize(v));
+          this.formControl.setValue(v);
+        });
+
         this.changeSubscription = this.sig().changeEvent.subscribe((v: number) => {
             this.formControl.setValue(this.normalize(v));
-            this.normalizedValue.set(v);
-          });
-          this.controlSubscription = this.formControl.valueChanges.subscribe((v: number) => {
-            this.sig().normalizedValue = v
-            this.normalizedValue.set(v);
-          });
-          this.isLinked.next(true);
+            if(this.inputSubject.value !== v) {
+              this.inputSubject.next(v);
+            }
+        });
+
+        this.controlSubscription = this.formControl.valueChanges.subscribe((v: number) => {
+          this.normalizedValue.set(v);  
+          this.sig().normalizedValue = v;
+          if(this.inputSubject.value !== v) {
+            this.inputSubject.next(v);
+          }
+        });
+
+        this.isLinked.next(true);
     }
-    reset() {
+    unlinkControl() {
       this.isLinked.next(false);
       this.changeSubscription?.unsubscribe();
       this.controlSubscription?.unsubscribe();

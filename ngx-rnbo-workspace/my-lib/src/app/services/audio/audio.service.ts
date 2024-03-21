@@ -17,7 +17,7 @@ export class AudioService implements IAudioService {
   gain_smooth = 0.05;
 
   state = signal<'running'|'suspended'|'closed'> ('closed');
-  isLoaded = signal<boolean>(false); // this is a signal because we want to wait for the audio context to be loaded properly, i.e. via user click before we start loading devices
+  isReady = signal<boolean>(false); // this is a signal because we want to wait for the audio context to be loaded properly, i.e. via user click before we start loading devices
   createAudioGraph: IAudioService["createAudioGraph"] = createAudioGraph.bind(this);
   createInputNode: IAudioService["createInputNode"] = createInputNode.bind(this);
   createOutputNode: IAudioService["createOutputNode"] = createOutputNode.bind(this);
