@@ -36,8 +36,16 @@ Also getting more comfortable with writing prompts for Copilot Chat, it's a fine
 ### Day 4: March 20th, 2024
 ##### Buffering...
 
-**Today's Progress:** Not too much today, started making a Buffer Service and ended up coding a class that basically does all the work, with the Service used for loading and passing around ui signals .
+**Today's Progress:** ~~Not too much today~~ Lots Today !, started making a Buffer Service and ended up coding a class that basically does all the work, with the Service used for loading and passing around ui signals . 
+UPDATE: I Also created a Parameter Service with a bunch of methods for parameter names and a subclass that leverages the normalization/denormalization function provided by the api. 
 
 
 **Thoughts:** didn't count it towards my hour, but i spent about 30 mins in max making a test rnbo device for the basic features (including buffers). kind of concerned about how the biffer ui design is going to go, there's a lot of possibilities but given that i've decided to do a mobile first design approach to the gui, i think I'll just stick with a display, and the option to load buffers from disk/url . maybe add a similar pattern to the patcher loading where a parent component can set a list of available options for buffers ? then handle the loading, as well as passing the data back to the buffer-view component. 
+
+### Day 4: March 21th, 2024
+##### Parameter Binding
+
+**Today's Progress:** Completed the parameter "chunk" (sketch? scaffold?) by creating the template and adding methods for consumer application binding. Also debugged an issue with changing the device dynamically by leveraging the invalidate device option. 
+
+**Thoughts:** Felt clever-ish about the work i did today. Reached another "not sure if this is a good idea" point with signals and spent a little too much time trying to allow binding to an signal. Think I will stick with rxjs for allowing 2-way consumer bindings to top-level inputs. However I'm pretty happy with the signals/rxjs combo-pattern I came up with: which uses subscriptions for state propagation and effects for class instantiation, and allows the user to visualize the parameter in a normalized range, while viewing it as a literal value using computed signals. I think all the consumer level API bindings are going to end up being BehaviorSubjects, the interface elements Form Controls, and signals for everything in between.
 
