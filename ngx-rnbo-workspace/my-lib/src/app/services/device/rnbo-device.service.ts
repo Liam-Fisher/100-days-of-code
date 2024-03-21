@@ -1,11 +1,11 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+
 import { NgxDevice } from '../../types/device';
-import { BeatTimeEvent, MIDIData, MIDIEvent, MessageEvent, TempoEvent, TimeSignatureEvent, TransportEvent } from '@rnbo/js';
 
 import { AudioService } from '../audio/audio.service';
 import { NgxPatcher } from '../../types/patcher';
 import { load } from './helpers/load';
 import { TaggedDataRef } from '../../types/buffers';
+import { Injectable, computed, inject, signal } from '@angular/core';
 
 @Injectable()
 export class RnboDeviceService {
@@ -18,7 +18,8 @@ export class RnboDeviceService {
   async getDataBuffer(id: string) {
     return (await this.sig()?.releaseDataBuffer(id))??null;
   }
-  async setDataBuffer(id: string, buffer: AudioBuffer) {
+  async setAudioBuffer(id: string, buffer: AudioBuffer|null) {
+    if(!buffer) return;
     await this.sig()?.setDataBuffer(id, buffer);
   }
   scheduleMessageEvent(time: number, tag: string, payload: number[]) {

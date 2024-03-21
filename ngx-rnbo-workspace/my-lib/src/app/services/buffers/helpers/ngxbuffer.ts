@@ -1,6 +1,7 @@
 import { BaseDevice, DataBuffer } from "@rnbo/js";
 import { BufferTag, BufferType,  SrcType, TaggedDataRef, VisbililtyLevel } from "../../../types/buffers";
 import { NgxDevice } from "../../../types/device";
+import { EventEmitter } from "@angular/core";
 
 export class NgxBuffer {
     
@@ -18,7 +19,6 @@ export class NgxBuffer {
     buffer: AudioBuffer|null = null;
     
     sampleRate!: number;
-
     hidden!: boolean;
     fixedLength!: boolean;
     
@@ -75,6 +75,10 @@ export class NgxBuffer {
     sampleRead(sample: number, channel = 0) {
         return this.buffer?.getChannelData(channel)[sample];
     }
+    setAudioToNull() {
+        this.srcType = 'none';
+        this.buffer = null;
+    }
     async setAudioFromData(data: Float32Array[]) {
         this.srcType = 'data';
         this.buffer = this.ctx.createBuffer(data.length, data[0].length, this.sampleRate);
@@ -92,9 +96,9 @@ export class NgxBuffer {
             console.log(`no url provided and no url exists in ref, current source type is '${this.srcType}'`);
         }
     }
-    async setAudioFromFile(file: File|null) {
+    async setAudioFromFile(name: string, file: Blob|File|null) {
         if(file) {
-            this.file = file.name;
+            this.file = name;
             this.srcType = 'file';
             this.buffer = await this.ctx.decodeAudioData(await file.arrayBuffer());
         }
@@ -102,11 +106,10 @@ export class NgxBuffer {
             console.log(`no file provided and no file exists in ref, current source type is '${this.srcType}'`);
         }
     }
-    async getAudioFromDataBuffer(dataBuffer: DataBuffer|null) {
+    async setAudioFromDataBuffer(dataBuffer: DataBuffer|null) {
         if(!dataBuffer) return;
         this.srcType = 'device';
         this.buffer = dataBuffer.getAsAudioBuffer(this.ctx);
     }
-
-
+    
 }
