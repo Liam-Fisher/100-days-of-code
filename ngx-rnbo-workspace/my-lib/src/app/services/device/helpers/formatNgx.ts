@@ -1,6 +1,6 @@
 import { IParameterDescription, IPreset } from "@rnbo/js";
 import { NgxDevice } from "../../../types/device";
-import { NgxParameter, SubpatcherNode } from "../../../types/parameter";
+import { INgxParameter, SubpatcherNode } from "../../../types/parameter";
 import { NgxPatcher } from "../../../types/patcher";
 
 export function formatNgxDevice(p: NgxPatcher, device: NgxDevice) {
@@ -21,7 +21,7 @@ function formatParameters(device: NgxDevice, desc: IParameterDescription[]) {
     
     for (let index = 0; index < parameters.length; index++) {
           let id = ids[index];
-          let parameter: NgxParameter = parameters[index];
+          let parameter: INgxParameter = parameters[index];
           let idParts: string[] = id.split('/');
       
           let instance = getIndex(idParts);

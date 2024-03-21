@@ -1,4 +1,7 @@
-import { NgxParameter, SubpatcherNode } from "./parameter";
+import { InputSignal, WritableSignal } from "@angular/core";
+import { BaseDevice, IPreset } from "@rnbo/js";
+
+import { INgxParameter, SubpatcherNode } from "./parameter";
 import { PatcherMeta } from "./patcher";
 import { DeviceChannel } from "./audio";
 import { NgxPortInfo } from "./messaging";
@@ -20,5 +23,5 @@ export interface NgxDevice extends BaseDevice {
     outlets: DeviceChannel[];
     inports: NgxPortInfo[];
     outports: NgxPortInfo[];
-    parameters: NgxParameter[]; 
+    parameters: INgxParameter[]; 
 }
