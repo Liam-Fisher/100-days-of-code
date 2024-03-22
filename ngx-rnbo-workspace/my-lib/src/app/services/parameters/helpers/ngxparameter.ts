@@ -1,24 +1,25 @@
 import { FormControl } from "@angular/forms";
 import { INgxParameter } from "../../../types/parameter";
 import { IEventSubscription } from "@rnbo/js";
-import { BehaviorSubject, Subscription } from "rxjs";
-import { Inject, Injector, computed, effect, input, model, signal } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { BehaviorSubject, Subscription, filter, map } from "rxjs";
+import { computed,  signal } from "@angular/core";
 
 export class NgxParameter {
 
     isLinked = new BehaviorSubject<boolean>(false);
     sig = signal<INgxParameter|null>(null);
     
-    formControl = new FormControl<number>(0, {nonNullable: true});
+    formControl = new FormControl<number>(0, {nonNullable: true}); // this is normalized
     
     normalizedValue = signal<number>(0);
     denormalizedValue = computed<number>(() => this.denormalize(this.normalizedValue()));
 
     valueLabel = computed<string>(() => `${this.denormalizedValue().toFixed(this.precision())}${this.unit()}`);
 
-    inputSubject = new BehaviorSubject<number>(0);
+    inputSubject = new BehaviorSubject<number>(0); //this is denormalized
     $inputSubject!: Subscription;
+
+    externalSubjectSubscriptions: Subscription[] = [];
 
     changeSubscription!: IEventSubscription;
     controlSubscription!: Subscription;
@@ -35,19 +36,18 @@ export class NgxParameter {
     enumValues = computed<string[]>(() => this.sig()?.enumValues??[]);
     uiType = computed<string>(() => this.sig()?.flags?.isEnum?this.sig()?.meta?.uiType??'select':'slider');
     unit = computed<string>(() => this.sig()?.unit??'');
+
     constructor(param: INgxParameter) { 
             this.param = param;
     }
     set param(p: INgxParameter) {
         this.sig.set(p);
-        this.linkControl();
+        this.unlinkControl().linkControl();
     }
     subscribe(Fn: (v: number) => void) {
         this.sig().changeEvent.subscribe(Fn);
     }
-    linkControl() {
-        this.unlinkControl();
-        
+    linkControl() {   
         this.$inputSubject = this.inputSubject.subscribe((v: number) => {
           this.normalizedValue.set(this.normalize(v));
           this.formControl.setValue(v);
@@ -69,16 +69,50 @@ export class NgxParameter {
         });
 
         this.isLinked.next(true);
+        return this;  
     }
     unlinkControl() {
       this.isLinked.next(false);
       this.changeSubscription?.unsubscribe();
       this.controlSubscription?.unsubscribe();
+      return this;
     }
-  denormalize(v: number) {
+    unlinkExternalSubjects() {
+      while(this.externalSubjectSubscriptions.length){
+        this.externalSubjectSubscriptions.pop()?.unsubscribe();
+      }
+    }
+    // normalized tells us if the external subject is normalized,
+    // this means we need to denormalize the normalized value emitted by the external subject
+    // and normalize the denormalized value emitted by the input subject
+    // might do something similar with enum values to allow string inputs
+    linkExternalSubject(outputSubject: BehaviorSubject<number>, normalized = false) {
+
+      const mapInFn = (v: number) => normalized?this.normalize(v):v;
+      const mapOutFn = (v: number) => normalized?this.denormalize(v):v;
+      const filterFn = (v: number) => v !== this.inputSubject.value;
+
+      const inputSubscription = this.inputSubject
+          .pipe(map(mapInFn), filter(filterFn))
+          .subscribe((v: number) => outputSubject.next(v));
+      const outputSubscription = outputSubject
+          .pipe(map(mapOutFn), filter(filterFn))
+          .subscribe((v: number) => this.inputSubject.next(v));
+
+      this.externalSubjectSubscriptions.push(inputSubscription, outputSubscription);
+
+      return this;
+    }
+    getEnumValue(index: number) {
+      return this.enumValues()[index];
+    }
+    getEnumIndex(value: string) {
+      return this.enumValues().indexOf(value);
+    }
+  denormalize(v: number): number {
     return this.sig()?.convertFromNormalizedValue(v)??v;
   }
-  normalize(v: number) {
+  normalize(v: number): number {
     return this.sig()?.convertToNormalizedValue(v)??v;
   }
   formatLabel(normalizedValue: number) {

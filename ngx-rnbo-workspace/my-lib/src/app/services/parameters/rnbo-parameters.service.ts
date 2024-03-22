@@ -5,7 +5,6 @@ import { NgxParameter } from './helpers/ngxparameter';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { displayNameLabel, instanceDescriptor } from './helpers/labels';
 import { IEventSubscription } from '@rnbo/js';
-import { bindToSignal, bindToSubject } from './helpers/bindings';
 
 @Injectable({
   providedIn: 'root'
@@ -17,13 +16,9 @@ export class RnboParametersService {
   optionGroups = computed(() => this.addresses().map(a => [a.index+'', ...a.id.split('/')].map(el => el.toLowerCase())));
   grouped = computed<string[][]>(() => this.ids().map((id, index) => ['#'+index, ...id.split('/')]));
   subjectParameterSubscriptions = new Map<string, Subscription>();
-  parameterSubjectSubscriptions = new Map<string, IEventSubscription>();
-  signalParameterSubscriptions = new Map<string, EffectRef>();
-  parameterSignalSubscriptions = new Map<string, IEventSubscription>();
+  
   ngxParametersById = new Map<string, NgxParameter>(); // keep track of instantiated parameters
 
-  bindToSignal: (id: string, signal: WritableSignal<number>) => void = bindToSignal.bind(this);
-  bindToSubject: (id: string, subject: BehaviorSubject<number>, normalizedSubject?: boolean) => void = bindToSubject.bind(this);
   displayNameLabel: (a: ParameterAddress) => string = displayNameLabel.bind(this);
   instanceDescriptor: (a: ParameterAddress|null) => string = instanceDescriptor.bind(this);
 
@@ -37,32 +32,20 @@ export class RnboParametersService {
         this.ngxParametersById.set(p.address.id, param);
       });
     }, {allowSignalWrites: true});
-  }/* 
-  ngxParameterFactory(id: string): NgxParameter|null {
-    let param = typeof id === 'string'?this.paramById(id):this.paramByIndex(id);
-    return param?(new NgxParameter(param)):null; 
   }
-
-  paramByIndex(paramIndex: number): INgxParameter|null {
-    return this.device.sig()?.parameters[paramIndex]??null;
-  } */
   reset() {
+    this.ngxParametersById.forEach(p => p.unlinkControl()?.unlinkExternalSubjects());
     this.ngxParametersById.clear();
-    this.subjectParameterSubscriptions.forEach(ref => ref.unsubscribe());
-    this.subjectParameterSubscriptions.clear();
-    this.parameterSubjectSubscriptions.forEach(ref => ref.unsubscribe());
-    this.parameterSubjectSubscriptions.clear();
   }
   remove(id: string) {
-    this.subjectParameterSubscriptions.get(id)?.unsubscribe();
-    this.subjectParameterSubscriptions.delete(id);
-    this.parameterSignalSubscriptions.get(id)?.unsubscribe();
-    this.parameterSignalSubscriptions.delete(id);
-    this.parameterSubjectSubscriptions.get(id)?.unsubscribe();
-    this.parameterSubjectSubscriptions.delete(id);
-    this.signalParameterSubscriptions.get(id)?.destroy();
-    this.signalParameterSubscriptions.delete(id);
+    this.ngxParametersById.get(id)?.unlinkControl()?.unlinkExternalSubjects();  
     this.ngxParametersById.delete(id);
+  }
+  linkSubject(id: string, subject: BehaviorSubject<number>, normalized = false) {
+    if(!this.ngxParametersById.has(id)) {
+      throw new Error(`parameter ${id} not found`);
+    }
+    return this.ngxParametersById.get(id)!.linkExternalSubject(subject, normalized);
   }
   getSubject(id: string): BehaviorSubject<number>|null { 
     return this.ngxParametersById.get(id)?.inputSubject??null;

@@ -37,7 +37,7 @@ fileNames = signal<string[]>([
   'feature_test_mono'
 ]);
 http = inject(HttpClient);  
-testParameterSignal = signal<number>(0);
+testParameterSubject = new BehaviorSubject<number>(0);
 testParameterFormControl = new FormControl<number>(0, {nonNullable: true});
 constructor() { }
 patcherSelected(name: string) {
@@ -50,21 +50,24 @@ getFile(name: any) {
       this.testPatcher.set(data);
     }); 
   }
+  
   testParameterSubjectBinding() {
     
-    const subject = this.activeDevice()?.getParameterSubject('noiseSelect');
-    const subScript = subject?.subscribe((v: number) => {
+    const subScript = this.testParameterSubject?.subscribe((v: number) => {
       let currentValue = this.testParameterFormControl.value;
       if(v !== currentValue) {
         this.testParameterFormControl.setValue(v);
       }
     });
     const formScript = this.testParameterFormControl.valueChanges.subscribe((v: number) => {
-      let currentValue = subject?.value;
-      if(v !== currentValue){
-        subject?.next(v);
+      let currentValue = this.testParameterSubject?.value;
+      if(v !== currentValue) {
+        this.testParameterSubject.next(v);
       }
     });
+    
+    this.activeDevice()?.linkParameterSubject('noiseSelect', this.testParameterSubject);
+
   }
 
 }

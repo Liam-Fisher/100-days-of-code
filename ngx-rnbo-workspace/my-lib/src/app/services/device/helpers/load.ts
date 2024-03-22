@@ -5,10 +5,10 @@ import { formatNgxDevice } from "./formatNgx";
 import { NgxDevice } from "../../../types/device";
 import { untracked } from "@angular/core";
 
-export async function load(this: RnboDeviceService, id: string, p: string|NgxPatcher) {
+export async function load(this: RnboDeviceService, id: string, p: string|NgxPatcher|null) {
     let context = this.audio.context;
     let prevDevice: Device|undefined;
-
+    if(!context || !p) return;
     if(untracked(this.isLoaded)) {
         prevDevice = untracked(this.sig) as unknown as Device;
     }

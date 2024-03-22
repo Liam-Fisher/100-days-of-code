@@ -11,6 +11,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RnboMessagingService } from '../../services/messaging/rnbo-messaging-service.service';
 import { RnboParametersService } from '../../services/parameters/rnbo-parameters.service';
 import { RnboParametersViewComponent } from '../parameters/rnbo-parameters-view.component';
+import { RnboBufferService } from '../../services/buffers/rnbo-buffer-service.service';
 
 @Component({
   selector: 'ngx-rnbo-device',
@@ -28,6 +29,11 @@ import { RnboParametersViewComponent } from '../parameters/rnbo-parameters-view.
     {
       provide: RnboParametersService,
       useFactory: () => new RnboParametersService(inject(RnboDeviceService), inject(Injector)),
+      deps: [RnboDeviceService]
+    },
+    {
+      provide: RnboBufferService,
+      useFactory: () => new RnboBufferService(inject(RnboDeviceService)),
       deps: [RnboDeviceService]
     }
   ],
@@ -89,19 +95,10 @@ export class RnboDeviceComponent {
   });
 
   patcher = input<string|NgxPatcher|null>(null);
-
+  
   loadDeviceOnUserInteraction = effect(() => {
-    console.log('loading device on user interaction');
     if(this.audio.isReady()) {
-      let p = this.patcher();
-      let id = this.patcherSelectionControl.value;
-      let isReady = this.audio.isReady();
-      console.log('isReady', isReady);
-      console.log('id', id);
-      console.log('patcher', p);
-    if(p&&id) {
-        this.device.load(id, p);
-      }
+        this.device.load(this.patcherSelectionControl.value, this.patcher());
     }
   }, {allowSignalWrites: true});
 
@@ -146,8 +143,8 @@ export class RnboDeviceComponent {
   get outputMessage() {
     return this.messaging.outport;
   }
-  getParameterSubject(id: string) {
-      return this.parameters.getSubject(id);
+  linkParameterSubject(id: string, subject: BehaviorSubject<number>) {
+    return this.parameters.linkSubject(id, subject);
   }
   
 }

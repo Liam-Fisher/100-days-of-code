@@ -1,12 +1,13 @@
-import { Component, input, model, viewChild } from '@angular/core';
+import { Component, effect, inject, input, model, viewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { filter } from 'rxjs';
+import { NgxPatcher } from '../../../types/patcher';
+import { RnboDeviceService } from '../../../services/device/rnbo-device.service';
 @Component({
   selector: 'ngx-patcher-select',
   standalone: true,
   imports: [ReactiveFormsModule],
   template: `
-  <select #selectPatcher [formControl]="patcherSelectControl" >
+  <select #selectPatcher [formControl]="patcherSelectionControl" >
 @for (item of patcherList(); track $index) {
   <option [value]="item">{{item}}</option>
 }
@@ -15,9 +16,28 @@ import { filter } from 'rxjs';
   styles: ``
 })
 export class PatcherSelectComponent {
+  device = inject(RnboDeviceService);
   patcherList = input.required<string[]>();
-  protected patcherSelectControl = new FormControl('', {nonNullable: true});
-  $patcherSelectControl = this.patcherSelectControl.valueChanges;
+  // patcherSelection = model<string>(''); // a consumer can select a patcher by name or index, or listen to user selection and load the patcher
+  patcherSelectionControl = new FormControl('untitled', {nonNullable: true});
+  patcherSelection = model<string>('');
+  // a consumer can select a patcher by name or index, or listen to user selection and load the patcher
+  patcherSelectionChangeSubscription = this.patcherSelectionControl.valueChanges.subscribe((id: string) => {
+    let patchers = this.patcherList();
+    
+      if(patchers.includes(id)) {
+        console.log(`loading patcher ${id}`);
+        this.audio.isReady.set(true);
+        this.patcherSelection.set(id);
+      }
+      else {
+        console.log(`patcher ${id} not found`);
+        console.log('patcher list', this.patcherList());
+      }
+  });
+
+  patcher = input<string|NgxPatcher|null>(null);
+
   
   
 }
