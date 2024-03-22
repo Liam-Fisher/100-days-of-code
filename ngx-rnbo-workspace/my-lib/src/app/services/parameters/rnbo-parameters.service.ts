@@ -24,16 +24,16 @@ export class RnboParametersService {
 
   constructor(public device: RnboDeviceService, public injector: Injector) { 
     effect(() => {
-      this.reset();
-      this.ngxParametersById.clear();
+      this.cleanup();
       device.sig()?.parameters.forEach(p => {
-        const param = new NgxParameter(p);
+        const param = new NgxParameter();
+        param.sig.set(p);
         param.linkControl();
         this.ngxParametersById.set(p.address.id, param);
       });
     }, {allowSignalWrites: true});
   }
-  reset() {
+  cleanup() {
     this.ngxParametersById.forEach(p => p.unlinkControl()?.unlinkExternalSubjects());
     this.ngxParametersById.clear();
   }

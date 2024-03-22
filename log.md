@@ -42,10 +42,17 @@ UPDATE: I Also created a Parameter Service with a bunch of methods for parameter
 
 **Thoughts:** didn't count it towards my hour, but i spent about 30 mins in max making a test rnbo device for the basic features (including buffers). kind of concerned about how the biffer ui design is going to go, there's a lot of possibilities but given that i've decided to do a mobile first design approach to the gui, i think I'll just stick with a display, and the option to load buffers from disk/url . maybe add a similar pattern to the patcher loading where a parent component can set a list of available options for buffers ? then handle the loading, as well as passing the data back to the buffer-view component. 
 
-### Day 4: March 21th, 2024
+### Day 5: March 21th, 2024
 ##### Parameter Binding
 
 **Today's Progress:** Completed the parameter "chunk" (sketch? scaffold?) by creating the template and adding methods for consumer application binding. Also debugged an issue with changing the device dynamically by leveraging the invalidate device option. 
 
 **Thoughts:** Felt clever-ish about the work i did today. Reached another "not sure if this is a good idea" point with signals and spent a little too much time trying to allow binding to an signal. Think I will stick with rxjs for allowing 2-way consumer bindings to top-level inputs. However I'm pretty happy with the signals/rxjs combo-pattern I came up with: which uses subscriptions for state propagation and effects for class instantiation, and allows the user to visualize the parameter in a normalized range, while viewing it as a literal value using computed signals. I think all the consumer level API bindings are going to end up being BehaviorSubjects, the interface elements Form Controls, and signals for everything in between.
+
+### Day 6: March 22nd, 2024
+##### Buffer Display
+
+**Today's Progress:** Decent amount of progress today. Created a visual interface for the buffer components. Lets you select and view a buffer and input a url to fetch via text. Still need to do a bit of testing, will probably need to create a new rnbo patcher that tests out what happens when various methods are used. Also put together a File Loading Service as there was a lot of similar methods/properties between services. Also had to edit the Parameters/Buffers Services to add cleanup methods.  
+
+**Thoughts:** Started realizing how many of the gui components are related - hence the file loading service. Also considering created some generic components, like a select for unique ids, but as the inputs/outputs and gonna change when/if i implement angular material. Realized that external input to set/get buffers is going to require some kind of command interface, not just a value, so I'll have to type and implement that.
 

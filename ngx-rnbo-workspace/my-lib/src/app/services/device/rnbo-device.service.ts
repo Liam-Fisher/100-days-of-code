@@ -18,6 +18,9 @@ export class RnboDeviceService {
   bufferRefs = computed<TaggedDataRef[]>(() => (this.sig()?.dataBufferDescriptions??[]) as TaggedDataRef[]);
   load: (id: string, p: string|NgxPatcher|null) => Promise<void> = load.bind(this);
   constructor() { }
+  async cleanup() {
+    
+  }
   async getDataBuffer(id: string) {
     return (await this.sig()?.releaseDataBuffer(id))??null;
   }

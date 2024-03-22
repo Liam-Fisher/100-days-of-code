@@ -4,7 +4,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { lengthValidator, rangeValidator, typeValidator } from './payloadValidators';
 import { MatInputModule } from '@angular/material/input';
-import { NgxPortInfo } from '../types/rnbo-extensions/messaging';
 
 
 @Component({

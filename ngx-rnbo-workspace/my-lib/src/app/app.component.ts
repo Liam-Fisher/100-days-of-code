@@ -6,11 +6,13 @@ import * as test from './examplePatchers/feature_test_mono.export.json';
 import { NgxPatcher } from './types/patcher';
 import { BehaviorSubject } from 'rxjs';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { IdSelectComponent } from './components/generic/id-select/id-select.component';
+import { WaveformChannelSelectComponent } from './components/buffers/waveform-channel-select/waveform-channel-select.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RnboDeviceComponent, HttpClientModule, ReactiveFormsModule],
+  imports: [RouterOutlet, RnboDeviceComponent, HttpClientModule, ReactiveFormsModule, WaveformChannelSelectComponent],
   providers: [HttpClient],
   template: `
   <h1> my lib </h1>
@@ -23,7 +25,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
   </select>
   
   
-  <ngx-rnbo-device #device [patcher]="testPatcher()" [patcherList]="fileNames()" (patcherSelectionChange)="getFile($event)" ></ngx-rnbo-device>
+  <ngx-rnbo-device #device [patcher]="testPatcher()" [patcherList]="fileNames()" (patcherSelectionChange)="getFile($event)" ></ngx-rnbo-device> 
   `
 })
 export class AppComponent {
@@ -40,6 +42,9 @@ http = inject(HttpClient);
 testParameterSubject = new BehaviorSubject<number>(0);
 testParameterFormControl = new FormControl<number>(0, {nonNullable: true});
 constructor() { }
+postChannel(num: number) {
+  console.log(`channel selected: ${num}`);
+}
 patcherSelected(name: string) {
   console.log(`patcher selected: ${name}`);
 }

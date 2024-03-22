@@ -1,14 +1,15 @@
 import { BaseDevice, DataBuffer } from "@rnbo/js";
 import { BufferTag, BufferType,  SrcType, TaggedDataRef, VisbililtyLevel } from "../../../types/buffers";
 import { NgxDevice } from "../../../types/device";
-import { EventEmitter } from "@angular/core";
+import { EventEmitter, signal } from "@angular/core";
+import { BehaviorSubject } from "rxjs";
 
 export class NgxBuffer {
     
     readonly ref: TaggedDataRef;
     readonly ctx: AudioContext;
     readonly id: string;
-
+    inputSubject = new BehaviorSubject<Float32Array[]>([]);
     url?: string;
     file?: string;
     
@@ -21,7 +22,8 @@ export class NgxBuffer {
     sampleRate!: number;
     hidden!: boolean;
     fixedLength!: boolean;
-    
+    selectedChannelIndex = signal<number>(1);
+
     constructor(ref: TaggedDataRef, ctx: AudioContext, alias?: string) {
 
         this.ref = ref;
@@ -37,6 +39,14 @@ export class NgxBuffer {
         [this.url, this.file] = [ref.url, ref.file];
         this.srcType = this.hidden?'none':this.url?'url':this.file?'file':this.fixedLength?'data':'device';
 
+    }
+    decrementChannel() {
+        let channel = this.selectedChannelIndex();
+        this.selectedChannelIndex.set(Math.max(1, channel- 1));
+    }
+    incrementChannel() {
+        let channel = this.selectedChannelIndex();
+        this.selectedChannelIndex.set(Math.min(this.channels, channel + 1));
     }
     get channels() {
         return this.buffer?.numberOfChannels??0;
@@ -61,6 +71,9 @@ export class NgxBuffer {
         for(let i = 0; i < this.channels; i++) { 
             tgt.forEach((el, i) => this.buffer!.copyFromChannel(el, i));
         }
+    }
+    readChannelData(channel: number) {
+        return this.buffer?.getChannelData(channel);
     }
     readAudioData() {
         const arrayBuffers: Float32Array[] = [];
@@ -96,9 +109,9 @@ export class NgxBuffer {
             console.log(`no url provided and no url exists in ref, current source type is '${this.srcType}'`);
         }
     }
-    async setAudioFromFile(name: string, file: Blob|File|null) {
+    async setAudioFromFile(file: File|null) {
         if(file) {
-            this.file = name;
+            this.file = file.name;
             this.srcType = 'file';
             this.buffer = await this.ctx.decodeAudioData(await file.arrayBuffer());
         }

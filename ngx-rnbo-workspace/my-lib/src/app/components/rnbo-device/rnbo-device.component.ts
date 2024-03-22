@@ -12,6 +12,9 @@ import { RnboMessagingService } from '../../services/messaging/rnbo-messaging-se
 import { RnboParametersService } from '../../services/parameters/rnbo-parameters.service';
 import { RnboParametersViewComponent } from '../parameters/rnbo-parameters-view.component';
 import { RnboBufferService } from '../../services/buffers/rnbo-buffer-service.service';
+import { IdSelectComponent } from '../generic/id-select/id-select.component';
+import { BufferWaveformDisplayComponent } from '../buffers/waveform-display/waveform-display.component';
+import { RnboBuffersViewComponent } from '../buffers/rnbo-buffers-view/rnbo-buffers-view.component';
 
 @Component({
   selector: 'ngx-rnbo-device',
@@ -40,7 +43,10 @@ import { RnboBufferService } from '../../services/buffers/rnbo-buffer-service.se
   imports: [
     ReactiveFormsModule, 
     AudioControlPanelComponent,
-    RnboParametersViewComponent
+    RnboParametersViewComponent,
+    RnboBuffersViewComponent
+    
+    
   ],
   template: `
     <ngx-audio-control-panel></ngx-audio-control-panel>
@@ -50,7 +56,7 @@ import { RnboBufferService } from '../../services/buffers/rnbo-buffer-service.se
     <option [value]="item">{{item}}</option>
   }
   </select> 
-  <ngx-rnbo-parameters-view></ngx-rnbo-parameters-view>
+  <ngx-rnbo-buffers-view></ngx-rnbo-buffers-view>
   `,
   styles: ``
 })
@@ -145,6 +151,12 @@ export class RnboDeviceComponent {
   }
   linkParameterSubject(id: string, subject: BehaviorSubject<number>) {
     return this.parameters.linkSubject(id, subject);
+  }
+  async loadDevice(){
+    if(this.device.isLoaded()) {
+      await this.device.cleanup();
+    }
+    await this.device.load(this.patcherSelectionControl.value, this.patcher());
   }
   
 }

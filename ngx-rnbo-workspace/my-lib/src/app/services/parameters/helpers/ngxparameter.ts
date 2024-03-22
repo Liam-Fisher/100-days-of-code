@@ -9,21 +9,19 @@ export class NgxParameter {
     isLinked = new BehaviorSubject<boolean>(false);
     sig = signal<INgxParameter|null>(null);
     
-    formControl = new FormControl<number>(0, {nonNullable: true}); // this is normalized
-    
     normalizedValue = signal<number>(0);
     denormalizedValue = computed<number>(() => this.denormalize(this.normalizedValue()));
 
     valueLabel = computed<string>(() => `${this.denormalizedValue().toFixed(this.precision())}${this.unit()}`);
 
     inputSubject = new BehaviorSubject<number>(0); //this is denormalized
+    formControl = new FormControl<number>(0, {nonNullable: true}); // this is normalized
+   
+    $changeEvent!: IEventSubscription;
+    $formControl!: Subscription;
     $inputSubject!: Subscription;
-
     externalSubjectSubscriptions: Subscription[] = [];
 
-    changeSubscription!: IEventSubscription;
-    controlSubscription!: Subscription;
-    
     min = computed<number>(() => this.sig()?.min??0);
     max = computed<number>(() => this.sig()?.max??1);
 
@@ -37,13 +35,7 @@ export class NgxParameter {
     uiType = computed<string>(() => this.sig()?.flags?.isEnum?this.sig()?.meta?.uiType??'select':'slider');
     unit = computed<string>(() => this.sig()?.unit??'');
 
-    constructor(param: INgxParameter) { 
-            this.param = param;
-    }
-    set param(p: INgxParameter) {
-        this.sig.set(p);
-        this.unlinkControl().linkControl();
-    }
+    constructor() { }
     subscribe(Fn: (v: number) => void) {
         this.sig().changeEvent.subscribe(Fn);
     }
@@ -53,14 +45,14 @@ export class NgxParameter {
           this.formControl.setValue(v);
         });
 
-        this.changeSubscription = this.sig().changeEvent.subscribe((v: number) => {
+        this.$changeEvent = this.sig().changeEvent.subscribe((v: number) => {
             this.formControl.setValue(this.normalize(v));
             if(this.inputSubject.value !== v) {
               this.inputSubject.next(v);
             }
         });
 
-        this.controlSubscription = this.formControl.valueChanges.subscribe((v: number) => {
+        this.$formControl = this.formControl.valueChanges.subscribe((v: number) => {
           this.normalizedValue.set(v);  
           this.sig().normalizedValue = v;
           if(this.inputSubject.value !== v) {
@@ -69,12 +61,14 @@ export class NgxParameter {
         });
 
         this.isLinked.next(true);
+
         return this;  
     }
     unlinkControl() {
       this.isLinked.next(false);
-      this.changeSubscription?.unsubscribe();
-      this.controlSubscription?.unsubscribe();
+      this.$changeEvent?.unsubscribe();
+      this.$formControl?.unsubscribe();
+      this.$inputSubject?.unsubscribe();
       return this;
     }
     unlinkExternalSubjects() {
