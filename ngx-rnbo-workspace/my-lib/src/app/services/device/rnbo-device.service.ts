@@ -28,6 +28,9 @@ export class RnboDeviceService {
     if(!buffer) return;
     await this.sig()?.setDataBuffer(id, buffer);
   }
+  send(event: MessageEvent) {
+    this.sig()?.scheduleEvent(event);
+  }
   scheduleMessageEvent(time: number, tag: string, payload: number[]) {
     this.sig()?.scheduleEvent(new MessageEvent(time, tag, payload));
 }
