@@ -6,7 +6,7 @@ import { Component, EventEmitter, input } from '@angular/core';
   standalone: true,
   imports: [NgClass],
   template: `
-  <button (click)="sendEvent.emit()" [disabled]="displayMode" [ngClass]="valid()?'valid-button':'invalid-button'">Send</button>
+  <button (click)="sendEvent.emit()" [disabled]="displayMode()" [ngClass]="valid()?'valid-button':'invalid-button'">Send</button>
   `,
   styles: `
   .invalid-button {
@@ -21,6 +21,6 @@ import { Component, EventEmitter, input } from '@angular/core';
 })
 export class MessageSendButtonComponent {
     displayMode = input<boolean>(false);
-    valid = input<boolean>(false);
+    valid = input<boolean>(true);
     sendEvent = new EventEmitter<void>()
 }

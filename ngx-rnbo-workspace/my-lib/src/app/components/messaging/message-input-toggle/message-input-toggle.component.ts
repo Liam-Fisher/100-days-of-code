@@ -1,5 +1,7 @@
-import { Component, Input, effect, model } from '@angular/core';
+import { Component, EventEmitter, Input, Output, effect, inject, input, model } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MessagingUiService } from '../../../services/messaging/messaging-ui.service';
+import { PortType } from '../../../types/messaging';
 
 @Component({
   selector: 'ngx-message-port-mode-toggle',
@@ -11,9 +13,10 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
   styles: ``
 })
 export class MessagePortModeToggleComponent {
-  
-  value = model<boolean>(false);
   control = new FormControl<boolean>(false, {nonNullable: true});
-  setEffect = effect(() => this.control.setValue(this.value()));
-  getSubscription = this.control.valueChanges.subscribe((v) => this.value.set(v));
+  $control = this.control.valueChanges.subscribe((v) => this.valueChange.emit(v));
+  @Input() set value (v: boolean) {
+    this.control.setValue(v);
+  }
+  @Output() valueChange = new EventEmitter<boolean>();
 }

@@ -1,4 +1,4 @@
-import { Component, Input, effect, input, model } from '@angular/core';
+import { Component, EventEmitter, Input, Output, effect, input, model } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { payloadValidator } from './payloadValidator';
 
@@ -14,13 +14,17 @@ import { payloadValidator } from './payloadValidator';
 export class MessagePayloadInputComponent {
   displayMode = input<boolean>(false);
   
-  value = model<number[]>([]);
-  control = new FormControl<string>("" , {validators: payloadValidator()});
-  setEffect = effect(() => this.control.setValue(this.value().join(' ')));
-  
-  getSubscription = this.control.valueChanges.subscribe((v) => {
-    this.value.set(v?.split(' ').map(el=>+el).filter(el => isNaN(el))??[])
-  });
+  @Input() set payload(v: number[]) {
+    this.control.setValue(v.join(' '));
+  }
+  @Output() payloadChange = new EventEmitter<number[]>();
 
-    
+  control = new FormControl<string>("" , {validators: payloadValidator()});
+  $control = this.control.valueChanges.subscribe((v) => {
+    let value = v;
+    console.log(`payload input value ${value}`);
+    let payload = value?.split(' ').map(el=>+el).filter(el => !isNaN(el));
+    console.log(`payload input payload ${payload}`);
+    this.payloadChange.emit(payload??[]);
+  });
   }

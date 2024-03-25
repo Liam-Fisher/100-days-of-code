@@ -10,7 +10,7 @@ import { FormControl } from '@angular/forms';
 })
 export class RnboMessagingService {
   debug = true;
-
+ device = inject(RnboDeviceService);
   
   inportInfoMap = new Map<string, NgxPortInfo>();
   inportRouter = new BehaviorSubject<PortMessage>([0, '', []]);
@@ -26,24 +26,14 @@ export class RnboMessagingService {
   outportInfoMap = new Map<string, NgxPortInfo>();
   externalOutportSubscriptions: Subscription[] = [];
 
-  inportIds = computed(() => [...this.inportInfoMap.keys()]);
-  outportIds = computed(() => [...this.outportInfoMap.keys()]);
-  
-  constructor(public device: RnboDeviceService) { 
-    effect(() => {
-      this.device.sig()?.inports.forEach((port) => {
-        this.inportInfoMap.set(port.tag, port);
-      });
-      this.device.sig()?.outports.forEach((port) => {
-        this.outportInfoMap.set(port.tag, port);
-      });
-    });
-  }
-  get inports() {
-    return [...this.inportInfoMap.values()];
-  }
-  get outports() {
-    return [...this.outportInfoMap.values()];
+  inports = computed<NgxPortInfo[]>(() => this.device.sig()?.inports??[]);
+  outports = computed<NgxPortInfo[]>(() => this.device.sig()?.outports??[]);
+  reset = effect(() => {
+    if(this.device.sig()) {
+      this.cleanup().linkDevice();
+    }
+  });
+  constructor() { 
   }
   
   formatPayload(payload: number[]|number|string|undefined): number[] {
@@ -55,8 +45,8 @@ export class RnboMessagingService {
   parsePayload(str: string): number[] {
     return str.split(' ').map(el=>+el).filter(el => isNaN(el));
   }
-  arrayToMessageEvent([time, tag, payload]: PortMessage): MessageEvent {
-      return new MessageEvent(time, tag, payload);
+  arrayToMessageEvent([time, tag, payload]: PortMessage): MessageEvent|null {
+      return tag?new MessageEvent(time, tag, payload):null;
   }
   messageEventToArray({time, tag, payload}: MessageEvent): PortMessage {
       return [time, tag, this.formatPayload(payload)];
@@ -73,30 +63,21 @@ export class RnboMessagingService {
   }
   linkDevice() {
     this.$inportRouter = this.inportRouter.subscribe((msg: PortMessage) => {
-      this.device.send(this.arrayToMessageEvent(msg));
+      let event = this.arrayToMessageEvent(msg);
+      if(this.debug) {
+        console.log('sending message:', msg);
+        console.log('message event:', this.arrayToMessageEvent(msg));
+      }
+      if(event){
+        this.device.send(event);
+      }
     });
     this.$outportRouter = this.device.sig()?.messageEvent.subscribe((msg: MessageEvent) => {
+        if(this.debug) {
+          console.log('received message event:', msg);
+          console.log('received message:', this.messageEventToArray(msg));
+        }
         this.output = this.messageEventToArray(msg);
-    });
-  }
-  
-  pipeIntoInportSubject<TMsg extends PortMessage|IPortMessage|string>(subject: BehaviorSubject<TMsg>) {
-    const initialValue = subject.value;
-    let subscription: Subscription;
-    if(typeof initialValue === 'string') {
-      subscription = subject.subscribe((msg) => {
-        this.input = [0, initialValue, []];
-      
-      });
-    }
-    else if(Array.isArray(initialValue)) {
-    
-    }
-    else {
-
-    }
-    return subject.subscribe((msg) => {
-      this.input = msg as PortMessage;
     });
   }
   connectExternalSubjectToInport(subject: BehaviorSubject<PortMessage>) {
@@ -110,11 +91,12 @@ export class RnboMessagingService {
     }));
   }
   cleanup() {
-    this.inportInfoMap.clear();
-    this.outportInfoMap.clear();
+    ///this.inportInfoMap.clear();
+    ///this.outportInfoMap.clear();
     this.$inportRouter?.unsubscribe();
     this.$outportRouter?.unsubscribe();
     this.externalInportSubscriptions.forEach(sub => sub.unsubscribe());
     this.externalOutportSubscriptions.forEach(sub => sub.unsubscribe());
+    return this;
   }
 }

@@ -68,4 +68,11 @@ UPDATE: I Also created a Parameter Service with a bunch of methods for parameter
 
 **Today's Progress:** frustrating day today. Can't seem to figure out why my message component won't load. Regardless, it is built though and should work so I will just have to diagnose a bit tomorrow. Also went a little overboard with the file access service, wrote a whole new set of types and a protocol to standardize the notion of files loading, should I want to add new file types in the future. Think I will end up extracting this to an external component, and not bother with file loading just now.
 
-**Thoughts:** Noticed I have a really bad habit of just switching patterns when code doesn't work, instead of trying to figure out why it doesn't work in the first place. The messaging thing is really bugging me because I'm just unable to load it. Isolated the problem to a handful of components and maybe I will just have to redesign them from the bottom up.  
+**Thoughts:** Noticed I have a really bad habit of just switching patterns when code doesn't work, instead of trying to figure out why it doesn't work in the first place. The messaging thing is really bugging me because I'm just unable to load it. Isolated the problem to a handful of components and maybe I will just have to redesign them from the bottom up. 
+
+### Day: 9 March 25th 2024
+##### Messages
+
+**Today's Progress:** another frustrating day today. Figured out the messaging issue (i forgot to call link device) but I found myself struggling to complete the component implementations. Didn't expect to take as much time as I did but still wasn't particularly pleased with my progress even though I technically finished the work I set out to do. Think I might need to go back to the drawing board. 
+
+**Thoughts:** Wish I could do better at not letting failure get to me - I think it's mostly the decline in productivity, as I really did expect this component to be the easiest to implement. Trying to go step by step and that's working out for me but it is frustratingly slow, especially when learning new elements of the framework. 

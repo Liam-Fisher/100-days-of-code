@@ -5,7 +5,7 @@ export type InputMessage = {
   tag: string;
   payload: number[];
 }; */
-
+export type PortType = 'in' | 'out';
 type UIType = 'line' | 'filter' | '';
 
 // export type PortMessage = [string, undefined|string|number|number[]];
