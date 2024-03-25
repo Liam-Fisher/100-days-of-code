@@ -1,4 +1,4 @@
-import { Component, Input, input } from '@angular/core';
+import { Component, Input, effect, input, model } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { payloadValidator } from './payloadValidator';
 
@@ -7,18 +7,20 @@ import { payloadValidator } from './payloadValidator';
   standalone: true,
   imports: [ReactiveFormsModule],
   template: `
-  <input type="text" [formControl]="payloadControl" />
+  <input type="text" [formControl]="control" />
   `,
   styles: ``
 })
 export class MessagePayloadInputComponent {
-    
-    payloadControl = new FormControl<string|null>('', {validators: [payloadValidator()]});
-    @Input() set value(v: string|null) {
-        this.payloadControl.setValue(v);
-    }
-    get value() {
-        return this.payloadControl.value;
-    }
+  displayMode = input<boolean>(false);
+  
+  value = model<number[]>([]);
+  control = new FormControl<string>("" , {validators: payloadValidator()});
+  setEffect = effect(() => this.control.setValue(this.value().join(' ')));
+  
+  getSubscription = this.control.valueChanges.subscribe((v) => {
+    this.value.set(v?.split(' ').map(el=>+el).filter(el => isNaN(el))??[])
+  });
+
     
   }

@@ -1,0 +1,34 @@
+{
+    "name": "testOne",
+    "preset": {
+      "__sps": {
+        "p_obj-97": [
+          {
+            "/printValue": {
+              "value": 0
+            }
+          },
+          {
+            "/printValue": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      "amp": {
+        "value": 0
+      },
+      "isRecording": {
+        "value": 0
+      },
+      "noiseSelect": {
+        "value": 0
+      },
+      "sineRate": {
+        "value": 0
+      },
+      "transportToggle": {
+        "value": 0
+      }
+    }
+  }

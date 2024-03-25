@@ -1,43 +1,47 @@
-import { Component, effect, inject, input, model, viewChild } from '@angular/core';
+import { Component, effect, inject,  untracked } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { NgxPatcher } from '../../../types/patcher';
 import { RnboDeviceService } from '../../../services/device/rnbo-device.service';
+import { FileAccessService } from '../../../services/files/file-access.service';
+import { AudioService } from '../../../services/audio/audio.service';
+import { INgxPatcherInfo } from '../../../types/files';
 @Component({
   selector: 'ngx-patcher-select',
   standalone: true,
   imports: [ReactiveFormsModule],
   template: `
-  <select #selectPatcher [formControl]="patcherSelectionControl" >
-@for (item of patcherList(); track $index) {
-  <option [value]="item">{{item}}</option>
+  <select #selectPatcher [formControl]="control" >
+@for (item of files.patchers(); track $index) {
+  <option [value]="item">{{item.name}}</option>
 }
 </select>
   `,
   styles: ``
 })
 export class PatcherSelectComponent {
+  
+  audio = inject(AudioService);
   device = inject(RnboDeviceService);
-  patcherList = input.required<string[]>();
+  files = inject(FileAccessService);
+
   // patcherSelection = model<string>(''); // a consumer can select a patcher by name or index, or listen to user selection and load the patcher
-  patcherSelectionControl = new FormControl('untitled', {nonNullable: true});
-  patcherSelection = model<string>('');
+  control = new FormControl<INgxPatcherInfo|null>(null);
   // a consumer can select a patcher by name or index, or listen to user selection and load the patcher
-  patcherSelectionChangeSubscription = this.patcherSelectionControl.valueChanges.subscribe((id: string) => {
-    let patchers = this.patcherList();
-    
-      if(patchers.includes(id)) {
-        console.log(`loading patcher ${id}`);
+  $control = this.control.valueChanges.subscribe((patcher) => {
+      if(patcher) {
         this.audio.isReady.set(true);
-        this.patcherSelection.set(id);
+        this.files.patcherSelection.set(patcher);
       }
       else {
-        console.log(`patcher ${id} not found`);
-        console.log('patcher list', this.patcherList());
+        console.log(`patcher not found`);
       }
   });
 
-  patcher = input<string|NgxPatcher|null>(null);
-
-  
+  loadDeviceOnUserInteraction = effect(() => {
+    let name = untracked(this.files.patcherSelection)?.name;
+    let patcher = untracked(this.files.activePatcherFile);
+    if(name&&this.audio.isReady()) {
+        this.device.load(name, patcher);
+    }
+  }, {allowSignalWrites: true});
   
 }

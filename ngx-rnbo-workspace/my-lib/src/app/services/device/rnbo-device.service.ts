@@ -12,15 +12,13 @@ export class RnboDeviceService {
   patcherSelectionOptions = signal<string[]>([]);
   patcherSelection = signal<string>('');
   
-  sig = signal<NgxDevice|null>(null);
   audio = inject(AudioService);
+  sig = signal<NgxDevice|null>(null);
   isLoaded = signal<boolean>(false);
   bufferRefs = computed<TaggedDataRef[]>(() => (this.sig()?.dataBufferDescriptions??[]) as TaggedDataRef[]);
   load: (id: string, p: string|NgxPatcher|null) => Promise<void> = load.bind(this);
+  parameters = computed(() => this.sig()?.parameters??[]);
   constructor() { }
-  async cleanup() {
-    
-  }
   async getDataBuffer(id: string) {
     return (await this.sig()?.releaseDataBuffer(id))??null;
   }

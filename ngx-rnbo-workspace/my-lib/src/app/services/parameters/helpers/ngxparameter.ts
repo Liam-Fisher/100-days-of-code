@@ -12,7 +12,7 @@ export class NgxParameter {
     normalizedValue = signal<number>(0);
     denormalizedValue = computed<number>(() => this.denormalize(this.normalizedValue()));
 
-    valueLabel = computed<string>(() => `${this.denormalizedValue().toFixed(this.precision())}${this.unit()}`);
+    valueLabel = computed<string>(() => `${this.denormalizedValue().toFixed(this.precision)}${this.unit}`);
 
     inputSubject = new BehaviorSubject<number>(0); //this is denormalized
     formControl = new FormControl<number>(0, {nonNullable: true}); // this is normalized
@@ -21,7 +21,7 @@ export class NgxParameter {
     $formControl!: Subscription;
     $inputSubject!: Subscription;
     externalSubjectSubscriptions: Subscription[] = [];
-
+/* 
     min = computed<number>(() => this.sig()?.min??0);
     max = computed<number>(() => this.sig()?.max??1);
 
@@ -33,33 +33,66 @@ export class NgxParameter {
 
     enumValues = computed<string[]>(() => this.sig()?.enumValues??[]);
     uiType = computed<string>(() => this.sig()?.flags?.isEnum?this.sig()?.meta?.uiType??'select':'slider');
-    unit = computed<string>(() => this.sig()?.unit??'');
+    unit = computed<string>(() => this.sig()?.unit??''); 
+    */
+   id: string;
+    min: number;
+    max: number;
+    precision: number;
+    step: number;
+    enumValues: string[];
+    unit: string;
+    uiType: string;
+    private obj: INgxParameter;
+    constructor(p: INgxParameter) { 
+      console.log(`creating parameter ${p.address.id}`);
+      this.obj = p;
+      this.id = p.address.id;
+      this.min = p.min;
+      this.max = p.max;
+      this.precision = p.meta?.precision??2;
+      this.step = 1/(p.steps-1);
+      this.enumValues = p.enumValues;
+      this.unit = p.unit;
+      this.uiType = p?.meta?.uiType??p?.flags?.isEnum?'select':'slider';
 
-    constructor() { }
+      this.linkControl();
+    }
     subscribe(Fn: (v: number) => void) {
-        this.sig().changeEvent.subscribe(Fn);
+        this.obj.changeEvent.subscribe(Fn);
     }
     linkControl() {   
         this.$inputSubject = this.inputSubject.subscribe((v: number) => {
-          this.normalizedValue.set(this.normalize(v));
-          this.formControl.setValue(v);
+          let normalized = this.normalize(v);
+          this.obj.value = v;
+          this.normalizedValue.set(normalized);
+          if(this.formControl.value !== normalized){
+              this.formControl.setValue(normalized);
+              console.log(`${this.id}: subject ${v} -> control ${this.normalize(v)}`);
+          }
         });
-
-        this.$changeEvent = this.sig().changeEvent.subscribe((v: number) => {
-            this.formControl.setValue(this.normalize(v));
-            if(this.inputSubject.value !== v) {
-              this.inputSubject.next(v);
-            }
-        });
-
+        
         this.$formControl = this.formControl.valueChanges.subscribe((v: number) => {
           this.normalizedValue.set(v);  
-          this.sig().normalizedValue = v;
-          if(this.inputSubject.value !== v) {
-            this.inputSubject.next(v);
+          this.obj.normalizedValue = v;
+          if(this.inputSubject.value !== this.denormalize(v)) {
+            this.inputSubject.next(this.denormalize(v));  
+            console.log(`${this.id}: control ${v} -> subject ${this.normalize(v)}`);
           }
         });
 
+        this.$changeEvent = this.obj.changeEvent.subscribe((v: number) => {
+          let normalized = this.normalize(v);
+          this.normalizedValue.set(normalized);
+          if(this.inputSubject.value !== v) {
+            console.log(`${this.id}: device ${v} -> subject ${this.normalize(v)}`);
+            this.inputSubject.next(v);
+          }
+        if(this.formControl.value !== normalized){
+          this.formControl.setValue(normalized);
+          console.log(`${this.id}: subject ${v} -> control ${this.normalize(v)}`);
+          }
+      });
         this.isLinked.next(true);
 
         return this;  
@@ -75,6 +108,7 @@ export class NgxParameter {
       while(this.externalSubjectSubscriptions.length){
         this.externalSubjectSubscriptions.pop()?.unsubscribe();
       }
+      return this;
     }
     // normalized tells us if the external subject is normalized,
     // this means we need to denormalize the normalized value emitted by the external subject
@@ -97,20 +131,20 @@ export class NgxParameter {
 
       return this;
     }
-    getEnumValue(index: number) {
-      return this.enumValues()[index];
+    getEnumValue(index: number): string {
+      return this.enumValues?.[index]??'';
     }
-    getEnumIndex(value: string) {
-      return this.enumValues().indexOf(value);
+    getEnumIndex(value: string): number {
+      return this.enumValues.indexOf(value);
     }
   denormalize(v: number): number {
-    return this.sig()?.convertFromNormalizedValue(v)??v;
+    return this.obj?.convertFromNormalizedValue(v)??v;
   }
   normalize(v: number): number {
-    return this.sig()?.convertToNormalizedValue(v)??v;
+    return this.obj?.convertToNormalizedValue(v)??v;
   }
   formatLabel(normalizedValue: number) {
-    console.log(`formatting label for ${normalizedValue} into denormalized ${this.denormalize(normalizedValue)} with precision ${this.precision()} and unit ${this.sig().unit??''}`);
-    return `${this.sig().unit??''}${this.denormalize(normalizedValue).toFixed(this.precision())}`;
+    console.log(`formatting label for ${normalizedValue} into denormalized ${this.denormalize(normalizedValue)} with precision ${this.precision} and unit ${this.unit??''}`);
+    return `${this.unit??''}${this.denormalize(normalizedValue).toFixed(this.precision)}`;
   }
 }

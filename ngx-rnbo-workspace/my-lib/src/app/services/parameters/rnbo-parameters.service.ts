@@ -1,36 +1,32 @@
-import { EffectRef, Injectable, Injector, WritableSignal, computed, effect } from '@angular/core';
+import {  Injectable,   computed, effect, inject } from '@angular/core';
 import { INgxParameter, ParameterAddress } from '../../types/parameter';
 import { RnboDeviceService } from '../device/rnbo-device.service';
 import { NgxParameter } from './helpers/ngxparameter';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { displayNameLabel, instanceDescriptor } from './helpers/labels';
-import { IEventSubscription } from '@rnbo/js';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RnboParametersService {
+  
+  
 
-  addresses = computed<ParameterAddress[]>(() => this.device.sig()?.parameters.map(p => p.address)??[]);
+  addresses = computed<ParameterAddress[]>(() => this.device.parameters().map(p => p.address));
   ids = computed<string[]>(() => this.addresses().map(a => a.id));
   optionGroups = computed(() => this.addresses().map(a => [a.index+'', ...a.id.split('/')].map(el => el.toLowerCase())));
   grouped = computed<string[][]>(() => this.ids().map((id, index) => ['#'+index, ...id.split('/')]));
-  subjectParameterSubscriptions = new Map<string, Subscription>();
   
   ngxParametersById = new Map<string, NgxParameter>(); // keep track of instantiated parameters
 
   displayNameLabel: (a: ParameterAddress) => string = displayNameLabel.bind(this);
   instanceDescriptor: (a: ParameterAddress|null) => string = instanceDescriptor.bind(this);
+  
 
-  constructor(public device: RnboDeviceService, public injector: Injector) { 
+  constructor(public device: RnboDeviceService) { 
     effect(() => {
       this.cleanup();
-      device.sig()?.parameters.forEach(p => {
-        const param = new NgxParameter();
-        param.sig.set(p);
-        param.linkControl();
-        this.ngxParametersById.set(p.address.id, param);
-      });
+      this.device.parameters().forEach(p => this.ngxParametersById.set(p.address.id, (new NgxParameter(p))));
     }, {allowSignalWrites: true});
   }
   cleanup() {

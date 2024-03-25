@@ -18,7 +18,7 @@ import { NgxParameter } from '../../services/parameters/helpers/ngxparameter';
   template: `
   @if(param !== null) {
     <p>{{displayName()}}</p>
-   @switch (notNullParam().uiType()) {
+   @switch (notNullParam().uiType) {
     @case('slider') {
       <ngx-parameter-slider [param]="notNullParam()" [id]="displayName()"></ngx-parameter-slider>
     <!-- other number types: number  -->

@@ -1,13 +1,13 @@
-import { Component, Input, computed, inject, input } from '@angular/core';
+import { Component, Input, computed, effect, inject, input, model } from '@angular/core';
 import { NgxPortInfo } from '../../../types/messaging';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
   selector: 'ngx-message-port-tag-select',
   standalone: true,
   imports: [ReactiveFormsModule],
   template: `
-  <select #selectTag [formControl]="portTagSelectionControl" >
+  <select #selectTag [formControl]="control" >
   @for(port of ports(); track $index) {
     <option [value]="port">{{port.tag}}</option>
   }
@@ -16,13 +16,14 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
   styles: ``
 })
 export class MessagePortTagSelectComponent {
+  
   ports = input<NgxPortInfo[]>([]);
-  portTagSelectionControl = new FormControl<NgxPortInfo|null>(null);
-  @Input() set value(v: NgxPortInfo|null) {
-    this.portTagSelectionControl.setValue(v);
-  }
-  get value() {
-    return this.portTagSelectionControl.value;
-  }
+  
+  displayMode = input<boolean>(false);
+  value = model<string>('');
+  control = new FormControl<NgxPortInfo|null>(null, {validators: Validators.required});
+
+  setEffect = effect(() => this.control.setValue(this.ports().find((p) => p.tag === this.value())??null));
+  getSubscription = this.control.valueChanges.subscribe((v) => this.value.set(v?.tag??''));
 
 }

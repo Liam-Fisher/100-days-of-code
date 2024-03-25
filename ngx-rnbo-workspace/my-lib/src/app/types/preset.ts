@@ -3,7 +3,7 @@ import { IPreset } from "@rnbo/js";
 
 export type PresetMeta = any;
 
-export type NgxPreset = IPreset & PresetMeta; // may add to this??
+export type NgxPreset = IPreset; // may add to this??
 
 export type PresetMap = Map<string, NgxPreset>;
 

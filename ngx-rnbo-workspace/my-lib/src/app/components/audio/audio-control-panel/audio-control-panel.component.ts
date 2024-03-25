@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, effect, inject, input } from '@angular/core';
 import { AudioService } from '../../../services/audio/audio.service';
 import { RnboDeviceService } from '../../../services/device/rnbo-device.service';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -34,6 +34,7 @@ export class AudioControlPanelComponent {
   running = computed(() => this.state() === 'running');
   closed = computed(() => this.state() === 'closed');
   device = inject(RnboDeviceService);
+  
   inputGainControl = new FormControl(0, {nonNullable: true});
   outputGainControl = new FormControl(0, {nonNullable: true});
   

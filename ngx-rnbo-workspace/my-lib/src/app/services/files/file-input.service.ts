@@ -3,20 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { NgxPatcher } from '../../types/patcher';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NgxPreset } from '../../types/preset';
-interface FileList {
-  patchers: {
-    folder: string;
-    files: string[];
-  };
-  buffers: {
-    folder: string;
-    files: string[];
-  };
-  presets: {
-    folder: string;
-    files: string[];
-  };
-}
+
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +15,7 @@ export class FileInputService {
   http = inject(HttpClient);
   fileListFolder = signal<string>('./assets/fileList.json'); // this should be injected ??
   fileList = toSignal(this.http.get<FileList>(this.fileListFolder()));
-
+  
   patcherFolder = computed<string>(() => this.fileList()?.patchers.folder??'');
   bufferFolder = computed<string>(() => this.fileList()?.buffers.folder??'');
   presetFolder = computed<string>(() => this.fileList()?.presets.folder??'');

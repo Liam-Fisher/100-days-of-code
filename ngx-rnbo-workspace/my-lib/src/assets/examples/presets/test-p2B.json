@@ -1,0 +1,20 @@
+{
+    "name": "presetTwo",
+    "preset": {
+      "bend_in": {
+        "value": 1
+      },
+      "on": {
+        "value": 1
+      },
+      "tremolo_amplitude": {
+        "value": 4
+      },
+      "tremolo_frequency": {
+        "value": 6.7
+      },
+      "waveform": {
+        "value": 2
+      }
+    }
+  }

@@ -1,78 +1,96 @@
-import { Component, inject, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { RnboDeviceComponent } from './components/rnbo-device/rnbo-device.component';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import * as test from './examplePatchers/feature_test_mono.export.json';
+import * as test from './examplePatchers/feature_test.export.json';
 import { NgxPatcher } from './types/patcher';
 import { BehaviorSubject } from 'rxjs';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { IdSelectComponent } from './components/generic/id-select/id-select.component';
-import { WaveformChannelSelectComponent } from './components/buffers/waveform-channel-select/waveform-channel-select.component';
+import {  ReactiveFormsModule } from '@angular/forms';
+import { PortMessage } from './types/messaging';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RnboDeviceComponent, HttpClientModule, ReactiveFormsModule, WaveformChannelSelectComponent],
-  providers: [HttpClient],
+  imports: [RouterOutlet, RnboDeviceComponent, ReactiveFormsModule],
   template: `
-  <h1> my lib </h1>
-  <button (click)="testParameterSubjectBinding()">bind to subject</button>
+  <h2> Messaging</h2>
+  <h3> Input </h3>
+  <div>
+  <input #inputNumber type="text" />
+  <input #inputTag type="text" />
+  <input #inputPayload type="text" />
+
+  <input  type="button" (click)="sendInport()" value="send inport" />
+  </div>
+
+  <h3> Outport </h3>
+  <div>
+  <input #outputNumber type="text" />
+  <input #outputTag type="text" />
+  <input #outputPayload type="text" />
+  </div>
+  <ngx-rnbo-device #device [patcherInput]="testPatcher()"  ></ngx-rnbo-device> 
   
-  <select #enum [formControl]="testParameterFormControl">
-  @for (item of ["n", "p", "w"]; track $index) {
-    <option [value]="$index">{{item}}</option>
-  }
-  </select>
-  
-  
-  <ngx-rnbo-device #device [patcher]="testPatcher()" [patcherList]="fileNames()" (patcherSelectionChange)="getFile($event)" ></ngx-rnbo-device> 
   `
 })
 export class AppComponent {
+  // (patcherLoadRequest)="logOutputEvent('patcherLoadRequest', $event)"
 title = 'my-lib';
 activeDevice = viewChild(RnboDeviceComponent);
 testPatcher = signal<NgxPatcher>(test as unknown as NgxPatcher); 
-fileNames = signal<string[]>([
-  'iter_test',
-  'loop',
-  'metaTest',
-  'feature_test_mono'
-]);
-http = inject(HttpClient);  
-testParameterSubject = new BehaviorSubject<number>(0);
-testParameterFormControl = new FormControl<number>(0, {nonNullable: true});
-constructor() { }
-postChannel(num: number) {
-  console.log(`channel selected: ${num}`);
-}
-patcherSelected(name: string) {
-  console.log(`patcher selected: ${name}`);
-}
-getFile(name: any) {
-  let path = `./assets/${name as string}.export.json`;
-  console.log(`getting file from ${path}`);
-  this.http.get<NgxPatcher>(path).subscribe((data) => {
-      this.testPatcher.set(data);
-    }); 
-  }
-  
-  testParameterSubjectBinding() {
-    
-    const subScript = this.testParameterSubject?.subscribe((v: number) => {
-      let currentValue = this.testParameterFormControl.value;
-      if(v !== currentValue) {
-        this.testParameterFormControl.setValue(v);
-      }
-    });
-    const formScript = this.testParameterFormControl.valueChanges.subscribe((v: number) => {
-      let currentValue = this.testParameterSubject?.value;
-      if(v !== currentValue) {
-        this.testParameterSubject.next(v);
-      }
-    });
-    
-    this.activeDevice()?.linkParameterSubject('noiseSelect', this.testParameterSubject);
 
+inportNumberElement =  viewChild<ElementRef<HTMLInputElement>>('inportNumber');
+inportTagElement = viewChild<ElementRef<HTMLInputElement>>('inportTag');
+inportPayloadElement = viewChild<ElementRef<HTMLInputElement>>('inportPayload');
+
+inportNumber = computed<string>(() => this.inportNumberElement()?.nativeElement?.value??'0');
+inportPayloadTag = computed<string>(() => this.inportTagElement()?.nativeElement?.value??'');
+inportPayloadNumbers = computed<number[]>(() => this.inportPayloadElement()?.nativeElement?.value.split(' ').map(el=>+el).filter(el => isNaN(el))??[]);
+testInportMessage = computed<PortMessage>(() => [isNaN(+this.inportNumber())?+this.inportNumber():0, this.inportPayloadElement()?.nativeElement?.value??'', this.inportPayloadNumbers()]);
+
+
+testInportSubject = new BehaviorSubject<PortMessage>([0, '', []]);
+
+outportNumberElement =  viewChild<ElementRef<HTMLInputElement>>('inportNumber');
+outportTagElement = viewChild<ElementRef<HTMLInputElement>>('inportTag');
+outportPayloadElement = viewChild<ElementRef<HTMLInputElement>>('inportPayload');
+outportNumber = computed<string>(() => this.outportNumberElement()?.nativeElement?.value??'0');
+outportPayloadTag = computed<string>(() => this.outportTagElement()?.nativeElement?.value??'');
+outportPayloadNumbers = computed<number[]>(() => this.outportPayloadElement()?.nativeElement?.value.split(' ').map(el=>+el).filter(el => isNaN(el))??[]);
+
+testOutportSubject = new BehaviorSubject<PortMessage>([0, '', []]);
+$testInportSubscription = this.testInportSubject.subscribe((message) => {
+  console.log(`sending inport message: ${message}`);
+});
+
+$testOutportSubscription = this.testOutportSubject.subscribe((message) => {
+  console.log(`received outport message: ${message}`);
+  this.setOutport(message);
+});
+
+
+constructor() { 
+  this.activeDevice()?.linkInportSubject(this.testInportSubject);
+  this.activeDevice()?.linkOutportSubject(this.testOutportSubject);
+}
+logOutputEvent(src: string, event: any) {
+  console.log(`output event: ${src}`, event);
+}
+  sendInport() {
+    this.testInportSubject.next(this.testInportMessage());
+  }
+  setOutport(message: PortMessage) {
+    const outportNumber = this.outportNumberElement()?.nativeElement??null;
+    const outportTag = this.outportTagElement()?.nativeElement??null;
+    const outportPayload = this.outportPayloadElement()?.nativeElement??null;
+    if(outportNumber && outportTag && outportPayload) {
+      outportNumber.value = message.toString();
+      outportTag.value = message.toString();
+      outportPayload.value = message.toString();
+    }
+  }
+  testPortSubjectBinding() {
+  //  this.activeDevice()?.linkInportSubject(this.testInportSubject);
+  //  this.activeDevice()?.linkOutportSubject(this.testOutportSubject);
   }
 
 }

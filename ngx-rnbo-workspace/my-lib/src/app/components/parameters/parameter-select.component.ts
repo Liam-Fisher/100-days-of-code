@@ -8,7 +8,7 @@ import { NgxParameter } from '../../services/parameters/helpers/ngxparameter';
   imports: [ ReactiveFormsModule],
   template: `
   <select #enum [formControl]="param().formControl">
-  @for (item of param().enumValues(); track $index) {
+  @for (item of param().enumValues; track $index) {
     <option [value]="$index">{{item}}</option>
   }
   </select>
@@ -17,7 +17,6 @@ import { NgxParameter } from '../../services/parameters/helpers/ngxparameter';
 })
 export class ParameterSelectComponent {
   param = input.required<NgxParameter>();
-  paramFormControl = new FormControl<number>(0, {nonNullable: true});
   constructor() { 
   }
 }

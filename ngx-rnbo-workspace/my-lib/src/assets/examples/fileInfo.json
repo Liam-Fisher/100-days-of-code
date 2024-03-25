@@ -1,0 +1,89 @@
+{
+
+    "assetsFolder": "examples",
+    "patchers": [
+        {
+            "name": "testOne",
+            "path": ["feature_test1"],
+            "isLocal": true,
+            "info": "This is the first test file",
+            "size": "301 KB",
+            "created": "2024-03-22",
+            "modified": "2024-03-24",
+            "presets": ["test-p1A", "test-p1B"]
+        },
+        {
+            "name": "testTwo", 
+            "path": ["feature_test2"],
+            "isLocal": true,
+            "info": "This is the second test file",
+            "size": "275 KB",
+            "created": "2024-03-22",
+            "modified": "2024-03-24",
+            "presets": ["test-p2A", "test-p2B"]
+        }
+    ],
+    "buffers": [
+        {
+            "name": "testBuffer1",
+            "path": ["test-buffer1"],
+            "isLocal": true,
+            "info": "This is the first test buffer",
+            "size": "1.2 MB",
+            "created": "2024-03-22",
+            "modified": "2024-03-22"
+        },
+        {
+            "name": "testBuffer2",
+            "path": ["test-buffer2"],
+            "isLocal": true,
+            "info": "This is the second test buffer",
+            "size": "1.5 MB",
+            "created": "2024-03-22",
+            "modified": "2024-03-22"
+        }
+    ],
+    "presets": [
+        {
+            "name": "testPreset1A",
+            "path": ["test-p1A"],
+            "isLocal": true,
+            "isComplete": true,
+            "info": "This is the first test preset for testOne",
+            "size": "1 KB",
+            "created": "2024-03-22",
+            "modified": "2024-03-22"
+        },
+        {
+            "name": "testPreset1B",
+            "path": ["test-p1B"],
+            "isLocal": true,
+            "isComplete": true,
+            "info": "This is the second test preset for testOne",
+            "size": "1 KB",
+            "created": "2024-03-22",
+            "modified": "2024-03-22"
+        },
+        {
+            "name": "testPreset2A",
+            "path": ["test-p2A"],
+            "isLocal": true,
+            "isComplete": true,
+            "info": "This is the first test preset for testTwo",
+            "size": "1 KB",
+            "created": "2024-03-22",
+            "modified": "2024-03-22"
+        },
+        {
+            "name": "testPreset2B",
+            "path": ["test-p2B"],
+            "isLocal": true,
+            "isComplete": true,
+            "info": "This is the second test preset for testTwo",
+            "size": "1 KB",
+            "created": "2024-03-22",
+            "modified": "2024-03-22"
+        }
+        
+    ]
+}
