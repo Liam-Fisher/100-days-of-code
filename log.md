@@ -76,3 +76,10 @@ UPDATE: I Also created a Parameter Service with a bunch of methods for parameter
 **Today's Progress:** another frustrating day today. Figured out the messaging issue (i forgot to call link device) but I found myself struggling to complete the component implementations. Didn't expect to take as much time as I did but still wasn't particularly pleased with my progress even though I technically finished the work I set out to do. Think I might need to go back to the drawing board. 
 
 **Thoughts:** Wish I could do better at not letting failure get to me - I think it's mostly the decline in productivity, as I really did expect this component to be the easiest to implement. Trying to go step by step and that's working out for me but it is frustratingly slow, especially when learning new elements of the framework. 
+
+### Day: 10 March 26th 2024
+##### Back to Buffers
+
+**Today's Progress:** Today was also primarily filled with debugging but I felt like I was making gradual progress, and a lot of it was silly oversight stuff, like 0 vs 1 indexed channels and being unable to use an empty buffer. I've got a much better grasp on how to interact with buffers in RNBO, and although it's not exactly the "low-level" solution to audio-visual synchronization I was looking for, it's definitely possible to pass data in the form of ArrayBuffers without consuming too much memory.
+
+**Thoughts:** Kind of an odd day as I was mostly fixing things - I really feel like I'm starting to get the hang of mixing signals, observables and asynchronous functions though, and my code is so much cleaner and more consistent when I know how to implement a solution. once i got the hang of signal queries I started straying away from a lot of the template syntax in angular, which has meant writing more lines of code, but code that is easier to understand and change.
