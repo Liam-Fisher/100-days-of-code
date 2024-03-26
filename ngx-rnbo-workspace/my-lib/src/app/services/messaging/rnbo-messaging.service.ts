@@ -35,7 +35,6 @@ export class RnboMessagingService {
   });
   constructor() { 
   }
-  
   formatPayload(payload: number[]|number|string|undefined): number[] {
     if(Array.isArray(payload)) return payload;
     if(typeof payload === 'number') return [payload];

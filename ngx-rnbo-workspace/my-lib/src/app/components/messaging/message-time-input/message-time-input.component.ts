@@ -14,10 +14,10 @@ import { PortType } from '../../../types/messaging';
 })
 export class MessageTimeInputComponent {
   displayMode = input<boolean>(false);
-  control = new FormControl<string|null>('0');
-  $control = this.control.valueChanges.subscribe((v) => !isNaN(+(v+''))?this.timeChange.emit(+(v+'')):this.control.setValue('0'));
-  @Input() set time (time: number) {
-    this.control.setValue(time.toString());
-  }
-  @Output() timeChange = new EventEmitter<number>();
+  $displayMode = effect(() => this.displayMode() ? this.control.disable() : this.control.enable());
+  time = model<number>(0);
+  $time = effect(() => this.control.setValue(this.time().toString(), {emitEvent: false}));
+  control = new FormControl<string>('0', {nonNullable: true});
+  $control = this.control.valueChanges
+  .subscribe((v) => this.time.set(+isNaN(+v)?0:(+v)));
 }

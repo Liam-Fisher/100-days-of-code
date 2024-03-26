@@ -9,8 +9,9 @@ import { MessagingUiService } from '../../../services/messaging/messaging-ui.ser
   imports: [ReactiveFormsModule],
   template: `
   <select #selectTag [formControl]="control">
+  <option value="0">--Select a tag--</option>
   @for(port of ports(); track $index) {
-    <option [value]="$index" >{{port.tag}}</option>
+    <option [value]="$index+1" >{{port.tag}}</option>
   }
   </select>
   `,
@@ -18,30 +19,15 @@ import { MessagingUiService } from '../../../services/messaging/messaging-ui.ser
 })
 export class MessagePortTagSelectComponent {
   displayMode = input<boolean>(false);
+  $displayMode = effect(() => this.displayMode()? this.control.disable() : this.control.enable());
   ports = input.required<NgxPortInfo[]>();
   portTags = computed(() => this.ports().map((port) => port.tag));
-  portSelected = model<NgxPortInfo|null>(null);
-  select = effect(() => console.log(`selecting port ${this.portSelected()?.tag??''}`));
-  control = new FormControl<number|null>(null, {validators: Validators.required});
-  $control = this.control.valueChanges.subscribe((v) => {
-    console.log(v);
-    let port = this.ports()[v??0]??null;
-    let tag = port?.tag??'';
-    console.log(`port input value ${tag}`);
-    if(tag) {
-      this.portChange.emit(tag);
-    }
+  tag = model<string>('');
+  $tag = effect(() => this.control.setValue(this.portTags().indexOf(this.tag())+1, {emitEvent: false}));
+  port = computed(() => this.ports().find((port) => port.tag === this.tag())??null);
+  control = new FormControl<number|null>(0, {validators: Validators.required});
+  $control = this.control.valueChanges
+  .subscribe((v) => {  
+    if(v) this.tag.set(this.portTags()[v-1]??'');
   });
-  selectPort(e: any) {
-    let p = e.target.value;
-    console.log(`selecting port ${p.tag}`);
-
-this.portChange.emit(p.tag);  
-  }
-  @Input() set port(p: string)  {
-    this.control.setValue(this.portTags()?.indexOf(p)??0);
-  }
-  @Output() portChange = new EventEmitter<string>();
-  
-
 }

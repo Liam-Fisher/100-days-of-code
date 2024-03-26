@@ -1,4 +1,4 @@
-import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { RnboDeviceComponent } from './components/rnbo-device/rnbo-device.component';
 import * as test from './examplePatchers/param_msg_test.export.json';
@@ -12,23 +12,8 @@ import { PortMessage } from './types/messaging';
   standalone: true,
   imports: [RouterOutlet, RnboDeviceComponent, ReactiveFormsModule],
   template: `
-  <h2> Messaging</h2>
-  <h3> Input </h3>
-  <div>
-  <input #inputNumber type="text" />
-  <input #inputTag type="text" />
-  <input #inputPayload type="text" />
-
-  <input  type="button" (click)="sendInport()" value="send inport" />
-  </div>
-
-  <h3> Outport </h3>
-  <div>
-  <input #outputNumber type="text" />
-  <input #outputTag type="text" />
-  <input #outputPayload type="text" />
-  </div>
-  <ngx-rnbo-device #device [patcherInput]="testPatcher()"  ></ngx-rnbo-device> 
+  <button (click)="testPortSubjectBinding()">test port subject binding</button>
+  <ngx-rnbo-device #device [patcherInput]="testPatcher()"></ngx-rnbo-device> 
   
   `
 })
@@ -37,6 +22,25 @@ export class AppComponent {
 title = 'my-lib';
 activeDevice = viewChild(RnboDeviceComponent);
 testPatcher = signal<NgxPatcher>(test as unknown as NgxPatcher); 
+testInportSubject = new BehaviorSubject<PortMessage>([0, '', []]);
+
+constructor() { 
+}
+
+logOutputEvent(src: string, event: any) {
+  console.log(`output event: ${src}`, event);
+}
+  testPortSubjectBinding() {
+  this.activeDevice()?.linkInportSubject(this.testInportSubject);
+  this.testInportSubject.next([0, 'testInportMsg', [3,2,1]]);
+
+  //  this.activeDevice()?.linkOutportSubject(this.testOutportSubject);
+  }
+
+}
+
+
+/* 
 
 inportNumberElement =  viewChild<ElementRef<HTMLInputElement>>('inportNumber');
 inportTagElement = viewChild<ElementRef<HTMLInputElement>>('inportTag');
@@ -67,14 +71,6 @@ $testOutportSubscription = this.testOutportSubject.subscribe((message) => {
   this.setOutport(message);
 });
 
-
-constructor() { 
-  this.activeDevice()?.linkInportSubject(this.testInportSubject);
-  this.activeDevice()?.linkOutportSubject(this.testOutportSubject);
-}
-logOutputEvent(src: string, event: any) {
-  console.log(`output event: ${src}`, event);
-}
   sendInport() {
     this.testInportSubject.next(this.testInportMessage());
   }
@@ -88,9 +84,26 @@ logOutputEvent(src: string, event: any) {
       outportPayload.value = message.toString();
     }
   }
-  testPortSubjectBinding() {
-  //  this.activeDevice()?.linkInportSubject(this.testInportSubject);
-  //  this.activeDevice()?.linkOutportSubject(this.testOutportSubject);
-  }
+linkSubjects = effect(() => {
+  this.activeDevice()?.linkInportSubject(this.testInportSubject);
+  this.activeDevice()?.linkOutportSubject(this.testOutportSubject);
+}, {allowSignalWrites: true});
+ */
 
-}
+/* 
+<h2> Messaging</h2>
+  <h3> Input </h3>
+  <div>
+  <input #inputNumber type="text" />
+  <input #inputTag type="text" />
+  <input #inputPayload type="text" />
+
+  <input  type="button" (click)="sendInport()" value="send inport" />
+  </div>
+
+  <h3> Outport </h3>
+  <div>
+  <input #outputNumber type="text" />
+  <input #outputTag type="text" />
+  <input #outputPayload type="text" />
+  </div> */

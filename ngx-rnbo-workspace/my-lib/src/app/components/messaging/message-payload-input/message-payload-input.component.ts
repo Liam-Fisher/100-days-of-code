@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output, effect, input, model } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { payloadValidator } from './payloadValidator';
+import { NgxPortInfo } from '../../../types/messaging';
 
 @Component({
   selector: 'ngx-message-payload-input',
@@ -13,18 +14,14 @@ import { payloadValidator } from './payloadValidator';
 })
 export class MessagePayloadInputComponent {
   displayMode = input<boolean>(false);
+  $displayMode = effect(() => this.displayMode() ? this.control.disable() : this.control.enable());
   
-  @Input() set payload(v: number[]) {
-    this.control.setValue(v.join(' '));
-  }
-  @Output() payloadChange = new EventEmitter<number[]>();
+  port = input.required<NgxPortInfo|null>();
 
-  control = new FormControl<string>("" , {validators: payloadValidator()});
-  $control = this.control.valueChanges.subscribe((v) => {
-    let value = v;
-    console.log(`payload input value ${value}`);
-    let payload = value?.split(' ').map(el=>+el).filter(el => !isNaN(el));
-    console.log(`payload input payload ${payload}`);
-    this.payloadChange.emit(payload??[]);
-  });
+  payload = model<number[]>([]);
+  $payload = effect(() => this.control.setValue(this.payload().join(' '), {emitEvent: false}));
+  
+  control = new FormControl<string>("" , {validators: payloadValidator(), updateOn: 'blur'});
+  $control = this.control.valueChanges
+  .subscribe((v) => this.payload.set(v?.split(' ').map(el=>+el).filter(el => !isNaN(el))??[]));
   }

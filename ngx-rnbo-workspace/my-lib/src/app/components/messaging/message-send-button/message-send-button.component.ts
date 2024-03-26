@@ -21,6 +21,7 @@ import { Component, EventEmitter, input } from '@angular/core';
 })
 export class MessageSendButtonComponent {
     displayMode = input<boolean>(false);
+    
     valid = input<boolean>(true);
     sendEvent = new EventEmitter<void>()
 }
