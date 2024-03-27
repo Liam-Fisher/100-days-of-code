@@ -1,7 +1,7 @@
 import { Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { RnboDeviceComponent } from './components/rnbo-device/rnbo-device.component';
-import * as test from './examplePatchers/param_msg_test.export.json';
+import * as test from './examplePatchers/testing_buffers.export.json';
 import { NgxPatcher } from './types/patcher';
 import { BehaviorSubject } from 'rxjs';
 import {  ReactiveFormsModule } from '@angular/forms';

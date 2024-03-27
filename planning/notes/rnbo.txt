@@ -1,0 +1,4 @@
+// Meta property supports arrays and objects !
+
+// Buffers need a size attribute set, or an external url.
+// this cannot be changed dynamically from 0 to non 0

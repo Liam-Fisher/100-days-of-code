@@ -4,7 +4,7 @@
 export type BufferType = 'Float64MultiBuffer '| 'Float32MultiBuffer' | 'Float32Buffer' | 'Float64Buffer' ;
 export type BufferTag = 'buffer'|'buffer~'|'data'|'multibuffer~';
 export type VisbililtyLevel = 'Application'|'Library'|'Device';
-export type SrcType = 'url'|'file'|'device'|'data'|'none';
+export type SrcType = 'url'|'file'|'device'|'data'|'none'|'empty';
 export type TaggedDataRef = {
     url?: string;
     file?: string;

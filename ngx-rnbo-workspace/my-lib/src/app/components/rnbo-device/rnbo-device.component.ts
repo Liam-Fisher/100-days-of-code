@@ -29,7 +29,7 @@ import { RnboMessagingViewComponent } from '../messaging/rnbo-messaging-view/rnb
   ],
   template: `
   <ngx-audio-control-panel></ngx-audio-control-panel>
-  <ngx-rnbo-messaging-view></ngx-rnbo-messaging-view>
+  <ngx-rnbo-buffers-view></ngx-rnbo-buffers-view>
   <button (click)="doTest()">Test</button>
   `,
   styles: ``
@@ -93,7 +93,6 @@ export class RnboDeviceComponent {
   doTest(){
     console.log('logging inport ids:');
     console.log('logging outport ids:');  
-    this.messaging.input = [0, 'testInportMsg', [100,100,100,100,100]];
   }
   linkInportSubject(subject: BehaviorSubject<PortMessage>) {
     return this.messaging.connectExternalSubjectToInport(subject);

@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, Renderer2, ViewChild, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, Renderer2, ViewChild, computed, effect, inject, input, model, signal, untracked } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import {  MatSelectModule } from '@angular/material/select';
@@ -18,27 +18,40 @@ const defaultData = (new Float32Array(128)).map((_, i) => Math.sin((i/512)*Math.
 export class BufferWaveformDisplayComponent {
 
   @ViewChild('svgDisplay') svgDisplay!: ElementRef<SVGElement>;
-  bufferService = inject(RnboBufferService);
-  renderer = inject(Renderer2);
-  readonly defaultData = (new Float32Array(128)).map((_, i) => Math.sin((i/32)*Math.PI));
-  localData = computed<Float32Array>(() => this.bufferService.selectedChannelData()??defaultData);
+  inputData = input<Float32Array|null>(null);
+  
+  dirty = model<boolean>(false);
+  $dirty = effect(() => {
+    if(this.dirty()) {
+      this.displayPath.set(this.generatePath());
+      this.dirty.set(false);
+    }
+  }, {allowSignalWrites: true});
+
+  readonly defaultData = (new Float32Array(128)).map((_, i) => (i/64)-1);
+
+  localData = computed<Float32Array>(() => this.inputData()??defaultData);
+  $localData = effect(() => {
+    let length = this.localData().length;
+    this.startWindow.set(0);
+    this.endWindow.set(length-1);
+    this.dirty.set(true);
+  }, {allowSignalWrites: true});
+  
   height = signal<number>(200);
   width = signal<number>(1000);
+
   startWindow = signal<number>(0);
   endWindow = signal<number>(127);
+
   startSample = computed<number>(()=> Math.floor(this.startWindow()));
   endSample = computed<number>(() => Math.ceil(this.endWindow()));
+
   samplesDisplayed = computed(() => (this.endSample() - this.startSample())+1);
   pathStep = computed(() => this.width() / (this.endSample() - this.startSample()));
   displayPath = signal<string>(`M 0 ${this.height() / 2}`);
-  constructor() {
-    effect(() => {
-      if(this.bufferService.dirtyDisplay()) {
-        this.bufferService.dirtyDisplay.set(false);
-        this.displayPath.set(this.generatePath());
-      }
-    }, {allowSignalWrites: true});
-  }
+
+  constructor() {}
   generatePath() {
     let pathData = `M 0 ${this.height() / 2}`;
     const data = this.localData();
@@ -49,7 +62,7 @@ export class BufferWaveformDisplayComponent {
   }
   ngAfterViewInit() {
     this.updateDims();
-    this.bufferService.dirtyDisplay.set(true);
+    this.dirty.set(true);
     const data = this.localData();
     console.log(`input data`, data);
   }
@@ -72,7 +85,7 @@ export class BufferWaveformDisplayComponent {
       end = Math.min(this.localData.length, end);
       this.startWindow.set(start);
       this.endWindow.set(end);
-      this.bufferService.dirtyDisplay.set(true);
+      this.dirty.set(true);
       console.log(`start: ${this.startSample()}, end: ${this.endSample()}`);
   }
 }

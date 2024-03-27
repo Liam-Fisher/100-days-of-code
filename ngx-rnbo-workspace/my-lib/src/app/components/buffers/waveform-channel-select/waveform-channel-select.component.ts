@@ -8,15 +8,23 @@ import { NgxBuffer } from '../../../services/buffers/helpers/ngxbuffer';
   imports: [],
   template: `
   <div>
-    <button (click)="buffer()?.incrementChannel()">+</button>
-    <span>{{channelIndex()}}/{{numChannels()}}</span>
-    <button (click)="buffer()?.decrementChannel()">-</button>
+    <button (click)="incrementChannel()">+</button>
+    <span>{{indexDisplay()}}/{{numChannels()}}</span>
+    <button (click)="decrementChannel()">-</button>
   </div>
   `,
   styles: ``
 })
 export class WaveformChannelSelectComponent {
-    buffer = input<NgxBuffer|null>();
-    channelIndex = computed<number>(() => this.buffer()?.selectedChannelIndex()??1);
-    numChannels = computed<number>(() => this.buffer()?.channels??1);
+    buffer = input<NgxBuffer|null>(null);
+    numChannels = computed(() => this.buffer()?.channels??0);
+    index = model<number>(0);
+    indexDisplay = computed(() => this.numChannels()?this.index()+1:0);
+    constructor() { }
+    incrementChannel() {
+      this.index.update((v) => Math.min(this.numChannels(), v+1));
+    }
+    decrementChannel() {
+      this.index.update((v) => Math.max(1, v-1));
+    }
 }
