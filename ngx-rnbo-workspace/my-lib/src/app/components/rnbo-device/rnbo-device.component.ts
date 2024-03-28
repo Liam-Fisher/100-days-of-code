@@ -15,12 +15,14 @@ import { RnboBuffersViewComponent } from '../buffers/rnbo-buffers-view/rnbo-buff
 import { RnboMessagingService } from '../../services/messaging/rnbo-messaging.service';
 import { RnboMessagingViewComponent } from '../messaging/rnbo-messaging-view/rnbo-messaging-view.component';
 import { RnboMidiService } from '../../services/midi/rnbo-midi.service';
+import { RnboPresetsService } from '../../services/presets/rnbo-presets.service';
+import { RnboTimingService } from '../../services/timing/timing.service';
 
 
 @Component({
   selector: 'ngx-rnbo-device',
   standalone: true,
-  providers: [AudioService, RnboDeviceService, RnboBufferService, RnboMessagingService, RnboParametersService],
+  providers: [AudioService, RnboDeviceService, RnboBufferService, RnboMessagingService,RnboMidiService, RnboParametersService,RnboPresetsService, RnboTimingService],
   imports: [
     ReactiveFormsModule, 
     AudioControlPanelComponent,
@@ -45,7 +47,9 @@ export class RnboDeviceComponent {
   messaging = inject(RnboMessagingService);
   midi = inject(RnboMidiService);
   parameters = inject(RnboParametersService);
- 
+  presets = inject(RnboPresetsService);
+  timing = inject(RnboTimingService);
+  
   inputContext = input<AudioContext|null>(null);  
   contextChange = effect(() =>  this.audio.context = this.inputContext() ?? new AudioContext());   
 

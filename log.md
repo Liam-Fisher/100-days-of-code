@@ -91,3 +91,11 @@ UPDATE: I Also created a Parameter Service with a bunch of methods for parameter
 **Today's Progress:** Did not have a whole lot of time today so I spent my hour doing some of the easier parts, i.e. building the MIDI service, which is very similar to the Messaging Service, and the Timing UI which is simple enough that it doesn't need a service.
 
 **Thoughts:** Oddly enough, I'm probably happiest about the work I *didn't* do today. Managed to stick to my original restrictions and keep the midi service simple but clean enough to modify later. I am always looking to learn new things but this can be a barrier for me when I'm trying to complete a project, so even though I didn't come up with any clever new patterns or creative ui designs, I'm just happy I was able to resist deep-diving into the (still under revision) WebMIDI, though the autocomplete suggestions certainly tempted me! 
+
+
+### Day 12: March 28th 2024
+###### Presets
+
+**Today's Progress:** Good amount of progress today, created the preset service/basic version of the component. Had some fun creating a command interface that'll be my inspiration for how the buffer interface will go, though neither are implemented programmatically at the top-level yet. Did all lot of nitpicky conditional component rendering stuff stuff that'll have to be changed into classes, but I wanted to make sure I had a record of the logic. 
+
+**Thoughts:** Put a lot of thought into the state-logic of presets, for example a preset shouldn't be able to be updated if it hasn't been changed, or created if it has the same name as an existing preset. Kind of enjoyed the process of breaking a preset action into as few components as possible, in order to see which actions need to be taken. 

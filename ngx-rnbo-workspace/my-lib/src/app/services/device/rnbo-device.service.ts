@@ -14,6 +14,9 @@ export class RnboDeviceService {
   sig = signal<NgxDevice|null>(null); 
   isLoaded = signal<boolean>(false); 
   bufferRefs = computed<TaggedDataRef[]>(() => (this.sig()?.dataBufferDescriptions??[]) as TaggedDataRef[]);
+  presets = computed(() => this.sig()?.meta.presets??null);
+  presetIds = computed<string[]>(() => [...(this.presets().keys()??[])]);
+  
   load: (id: string, p: string|NgxPatcher|null) => Promise<void> = load.bind(this);
   parameters = computed(() => this.sig()?.parameters??[]);
 
