@@ -83,3 +83,11 @@ UPDATE: I Also created a Parameter Service with a bunch of methods for parameter
 **Today's Progress:** Today was also primarily filled with debugging but I felt like I was making gradual progress, and a lot of it was silly oversight stuff, like 0 vs 1 indexed channels and being unable to use an empty buffer. I've got a much better grasp on how to interact with buffers in RNBO, and although it's not exactly the "low-level" solution to audio-visual synchronization I was looking for, it's definitely possible to pass data in the form of ArrayBuffers without consuming too much memory.
 
 **Thoughts:** Kind of an odd day as I was mostly fixing things - I really feel like I'm starting to get the hang of mixing signals, observables and asynchronous functions though, and my code is so much cleaner and more consistent when I know how to implement a solution. once i got the hang of signal queries I started straying away from a lot of the template syntax in angular, which has meant writing more lines of code, but code that is easier to understand and change.
+
+
+### Day 11: March 27th 2024
+##### a Bit of MIDI
+
+**Today's Progress:** Did not have a whole lot of time today so I spent my hour doing some of the easier parts, i.e. building the MIDI service, which is very similar to the Messaging Service, and the Timing UI which is simple enough that it doesn't need a service.
+
+**Thoughts:** Oddly enough, I'm probably happiest about the work I *didn't* do today. Managed to stick to my original restrictions and keep the midi service simple but clean enough to modify later. I am always looking to learn new things but this can be a barrier for me when I'm trying to complete a project, so even though I didn't come up with any clever new patterns or creative ui designs, I'm just happy I was able to resist deep-diving into the (still under revision) WebMIDI, though the autocomplete suggestions certainly tempted me! 

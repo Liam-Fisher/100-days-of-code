@@ -13,7 +13,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 })
 export class BeattimeInputComponent {
   beattime = model<number>(0);
-  $tempo = effect(() => this.control.setValue(this.beattime()+'', {emitEvent: false}));
+  $beattime = effect(() => this.control.setValue(this.beattime()+'', {emitEvent: false}));
   control = new FormControl<string>("0", {nonNullable: true});
   $control = this.control.valueChanges
   .subscribe((val) => isNaN(+val)?null:this.beattime.set(+val));

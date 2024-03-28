@@ -37,17 +37,5 @@ export class RnboDeviceService {
   sendMIDI(port: number, data: MIDIData) {
     this.send(new MIDIEvent(0, port, data));
   }
-  setBeattime(beattime: number) {
-    this.send(new BeatTimeEvent(0, beattime));
-  }
-  setTransport(transport: boolean) {
-    this.send(new TransportEvent(0, +transport));
-  }
-  setTimeSignature(timeSignature: [number, number]) {
-    this.send(new TimeSignatureEvent(0, ...timeSignature));
-  }
-  setTempo(tempo: number) {
-    this.send(new TempoEvent(0, tempo));
-  }
 
 }

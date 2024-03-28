@@ -1,11 +1,11 @@
-export type TimingType = 'transport'|'beat'|'tempo'|'timeSignature';
+export type TimingType = 'transport'|'beattime'|'tempo'|'timeSignature';
 export interface TransportMesssage {
     type: 'transport';
     timeTill?: number;
     data: boolean;
 }
-export interface BeatMesssage {
-    type: 'beat';
+export interface BeatTimeMesssage {
+    type: 'beattime';
     timeTill?: number;
     data: number;
 }
@@ -19,4 +19,4 @@ export interface TimeSignatureMesssage {
     timeTill?: number;
     data: [number, number];
 }
-export type TimingMessage = TransportMesssage|BeatMesssage|TempoMesssage|TimeSignatureMesssage;
+export type TimingMessage = TransportMesssage|BeatTimeMesssage|TempoMesssage|TimeSignatureMesssage;

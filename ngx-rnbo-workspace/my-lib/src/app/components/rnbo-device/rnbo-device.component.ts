@@ -14,6 +14,7 @@ import { RnboBufferService } from '../../services/buffers/rnbo-buffer-service.se
 import { RnboBuffersViewComponent } from '../buffers/rnbo-buffers-view/rnbo-buffers-view.component';
 import { RnboMessagingService } from '../../services/messaging/rnbo-messaging.service';
 import { RnboMessagingViewComponent } from '../messaging/rnbo-messaging-view/rnbo-messaging-view.component';
+import { RnboMidiService } from '../../services/midi/rnbo-midi.service';
 
 
 @Component({
@@ -31,6 +32,7 @@ import { RnboMessagingViewComponent } from '../messaging/rnbo-messaging-view/rnb
   <ngx-audio-control-panel></ngx-audio-control-panel>
   <ngx-rnbo-buffers-view></ngx-rnbo-buffers-view>
   <button (click)="doTest()">Test</button>
+  <input type="checkbox" [(checked)]="midi.logEvents" />
   `,
   styles: ``
 })
@@ -41,6 +43,7 @@ export class RnboDeviceComponent {
   device = inject(RnboDeviceService);
   buffer = inject(RnboBufferService);
   messaging = inject(RnboMessagingService);
+  midi = inject(RnboMidiService);
   parameters = inject(RnboParametersService);
  
   inputContext = input<AudioContext|null>(null);  
@@ -61,18 +64,6 @@ export class RnboDeviceComponent {
 
   // presetIDs = computed(() => Array.from(this.presetService.ids()??[]));
 
-  
-  
-
-
-  // will this work with signals?
-  //messageInput = input<PortMessage>(); // the message input channel
-    
-  // we'll pipe these to the device service
-  
-  midiInput = new Subject<number[]>(); // the midi input channel
-  midiOutput = new Subject<number[]>(); // the midi output channel
-
   presetInput = new Subject<PresetAction>(); // the preset input channel
   
   //  presetIDs = computed<string[]>(() => this.deviceService.presetIDs); // the preset ids
@@ -84,6 +75,8 @@ export class RnboDeviceComponent {
 
   // Still need Buffer and Parameter attributes.
   constructor() { }
+  toggleMIDILogging() {
+  }
   set inputGain(gain: number) {
     this.audio.setInputGain(gain);
   }
@@ -102,6 +95,12 @@ export class RnboDeviceComponent {
   }
   linkParameterSubject(id: string, subject: BehaviorSubject<number>) {
     return this.parameters.linkSubject(id, subject);
+  }
+  linkMIDIInputSubject(subject: BehaviorSubject<number[]>) {
+    return this.midi.connectExternalSubjectToInput(subject);
+  }
+  linkMIDIOutputSubject(subject: BehaviorSubject<number[]>) {
+    return this.midi.connectOuportToExternalSubject(subject);
   }
   
 }
