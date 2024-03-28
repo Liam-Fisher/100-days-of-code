@@ -6,6 +6,7 @@ import { NgxPatcher } from '../../types/patcher';
 import { load } from './helpers/load';
 import { TaggedDataRef } from '../../types/buffers';
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable()
 export class RnboDeviceService {
@@ -16,9 +17,9 @@ export class RnboDeviceService {
   load: (id: string, p: string|NgxPatcher|null) => Promise<void> = load.bind(this);
   parameters = computed(() => this.sig()?.parameters??[]);
 
-  
+  constructor() {
 
-  constructor() { }
+   }
   async getDataBuffer(id: string) {
     return (await this.sig()?.releaseDataBuffer(id))??null;
   }
@@ -33,8 +34,8 @@ export class RnboDeviceService {
   sendMessage(tag: string, payload: number[]) {
     this.send(new MessageEvent(0, tag, payload));
   }
-  sendMIDI(port: number, data: number[]) {
-    this.send(new MIDIEvent(0, port, data as MIDIData));
+  sendMIDI(port: number, data: MIDIData) {
+    this.send(new MIDIEvent(0, port, data));
   }
   setBeattime(beattime: number) {
     this.send(new BeatTimeEvent(0, beattime));
