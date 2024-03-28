@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, viewChild } from '@angular/core';
+import { Component, computed, effect, inject, untracked, viewChild } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { TimingMessage } from '../../../types/timing';
 import { BeattimeInputComponent } from '../beattime-input/beattime-input.component';
@@ -22,22 +22,27 @@ import { TransportEvent } from '@rnbo/js';
   styles: ``
 })
 export class RnboTimingViewComponent {
-  // timing = inject(RnboTimingService); may find a use for this later, but for now it's not needed
-  device= inject(RnboDeviceService);
+  
+  timing = inject(RnboTimingService);
+
   transportElement = viewChild.required(TransportToggleComponent);
   beattimeElement = viewChild.required(BeattimeInputComponent);
   tempoElement = viewChild.required(TempoInputComponent);
   timeSignatureElement = viewChild.required(TimeSignatureSelectComponent);
 
-  transport = computed<boolean>(() => this.transportElement().transport());  
-  beattime = computed<number>(() => this.beattimeElement().beattime()??0);
-  tempo = computed<number>(() => this.tempoElement().tempo()??0);
-  timeSignature = computed<[number, number]>(() => this.timeSignatureElement().timeSignature()??[4,4]);
+  $timingService = effect(() => {
+    untracked(this.transportElement).transport.set(this.timing.transport());
+    untracked(this.beattimeElement).beattime.set(this.timing.beattime());
+    untracked(this.tempoElement).tempo.set(this.timing.tempo());
+    untracked(this.timeSignatureElement).timeSignature.set(this.timing.timeSignature());
+  });
 
-  $transport = effect(() => this.device.setTransport(this.transport()));
-  $beattime = effect(() => this.device.setBeattime(this.beattime()));
-  $tempo = effect(() => this.device.setTempo(this.tempo()));
-  $timeSignature = effect(() => this.device.setTimeSignature(this.timeSignature()));
+  $timingComponent = effect(() => {
+    this.timing.transport.set(this.transportElement().transport());
+    this.timing.beattime.set(this.beattimeElement().beattime());
+    this.timing.tempo.set(this.tempoElement().tempo());
+    this.timing.timeSignature.set(this.timeSignatureElement().timeSignature());
+  });
 
   constructor() { }
 }
