@@ -9,9 +9,9 @@ import { FormControl } from '@angular/forms';
   providedIn: 'root'
 })
 export class RnboMessagingService {
-  debug = true;
- device = inject(RnboDeviceService);
   
+  device = inject(RnboDeviceService);
+  debug = computed<boolean>(() => this.device.debugMode()?.messaging??false);
   inportInfoMap = new Map<string, NgxPortInfo>();
   inportRouter = new BehaviorSubject<PortMessage>([0, '', []]);
   $inportRouter?: Subscription;
@@ -63,7 +63,7 @@ export class RnboMessagingService {
   linkDevice() {
     this.$inportRouter = this.inportRouter.subscribe((msg: PortMessage) => {
       let event = this.arrayToMessageEvent(msg);
-      if(this.debug) {
+      if(this.debug()) {
         console.log('sending message:', msg);
         console.log('message event:', this.arrayToMessageEvent(msg));
       }
@@ -72,7 +72,7 @@ export class RnboMessagingService {
       }
     });
     this.$outportRouter = this.device.sig()?.messageEvent.subscribe((msg: MessageEvent) => {
-        if(this.debug) {
+        if(this.debug()) {
           console.log('received message event:', msg);
           console.log('received message:', this.messageEventToArray(msg));
         }

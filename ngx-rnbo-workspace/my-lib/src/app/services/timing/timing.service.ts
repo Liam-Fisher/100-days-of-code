@@ -33,7 +33,7 @@ export class RnboTimingService {
   });
   constructor() { }
 
-  timingEvent(evt: TimingMessage) {
+  command(evt: TimingMessage) {
     this.timingEventAt.set(evt?.timeTill??0);
     switch(evt?.type) {
       case 'beattime': this.beattime.set(evt?.data??0); break;
@@ -43,7 +43,6 @@ export class RnboTimingService {
       default: 
         console.log(`Invalid timing event type`, evt);
         throw new Error(`Invalid timing event`);
-      
+    }
   }
-}
 }

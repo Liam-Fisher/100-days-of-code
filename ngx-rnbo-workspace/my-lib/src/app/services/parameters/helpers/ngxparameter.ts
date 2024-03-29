@@ -44,7 +44,7 @@ export class NgxParameter {
     unit: string;
     uiType: string;
     private obj: INgxParameter;
-    constructor(p: INgxParameter) { 
+    constructor(p: INgxParameter, private debug = false) { 
       console.log(`creating parameter ${p.address.id}`);
       this.obj = p;
       this.id = p.address.id;
@@ -68,8 +68,10 @@ export class NgxParameter {
           this.normalizedValue.set(normalized);
           if(this.formControl.value !== normalized){
               this.formControl.setValue(normalized);
-              console.log(`${this.id}: subject ${v} -> control ${this.normalize(v)}`);
-          }
+              if(this.debug) {
+                console.log(`${this.id}: subject ${v} -> control ${this.normalize(v)}`);
+              }
+            }
         });
         
         this.$formControl = this.formControl.valueChanges.subscribe((v: number) => {
@@ -77,7 +79,9 @@ export class NgxParameter {
           this.obj.normalizedValue = v;
           if(this.inputSubject.value !== this.denormalize(v)) {
             this.inputSubject.next(this.denormalize(v));  
-            console.log(`${this.id}: control ${v} -> subject ${this.normalize(v)}`);
+            if(this.debug){
+              console.log(`${this.id}: control ${v} -> subject ${this.normalize(v)}`);
+            }
           }
         });
 
@@ -85,13 +89,17 @@ export class NgxParameter {
           let normalized = this.normalize(v);
           this.normalizedValue.set(normalized);
           if(this.inputSubject.value !== v) {
-            console.log(`${this.id}: device ${v} -> subject ${this.normalize(v)}`);
             this.inputSubject.next(v);
+            if(this.debug) {
+              console.log(`${this.id}: object ${v} -> subject ${this.normalize(v)}`);
+            }
           }
-        if(this.formControl.value !== normalized){
-          this.formControl.setValue(normalized);
-          console.log(`${this.id}: subject ${v} -> control ${this.normalize(v)}`);
-          }
+          if(this.formControl.value !== normalized){
+            this.formControl.setValue(normalized);
+            if(this.debug) {
+                console.log(`${this.id}: subject ${v} -> control ${this.normalize(v)}`);
+              }
+            }
       });
         this.isLinked.next(true);
 
@@ -144,7 +152,9 @@ export class NgxParameter {
     return this.obj?.convertToNormalizedValue(v)??v;
   }
   formatLabel(normalizedValue: number) {
-    console.log(`formatting label for ${normalizedValue} into denormalized ${this.denormalize(normalizedValue)} with precision ${this.precision} and unit ${this.unit??''}`);
+    if(this.debug) {
+      console.log(`formatting label for ${normalizedValue} into denormalized ${this.denormalize(normalizedValue)} with precision ${this.precision} and unit ${this.unit??''}`);
+    }
     return `${this.unit??''}${this.denormalize(normalizedValue).toFixed(this.precision)}`;
   }
 }

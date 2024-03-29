@@ -11,6 +11,8 @@ import { displayNameLabel, instanceDescriptor } from './helpers/labels';
 export class RnboParametersService {
   
   
+  device = inject(RnboDeviceService);
+  debugMode = computed<boolean>(() => this.device.debugMode()?.parameters??false);
 
   addresses = computed<ParameterAddress[]>(() => this.device.parameters().map(p => p.address));
   ids = computed<string[]>(() => this.addresses().map(a => a.id));
@@ -22,12 +24,12 @@ export class RnboParametersService {
   displayNameLabel: (a: ParameterAddress) => string = displayNameLabel.bind(this);
   instanceDescriptor: (a: ParameterAddress|null) => string = instanceDescriptor.bind(this);
   
-
-  constructor(public device: RnboDeviceService) { 
-    effect(() => {
-      this.cleanup();
-      this.device.parameters().forEach(p => this.ngxParametersById.set(p.address.id, (new NgxParameter(p))));
-    }, {allowSignalWrites: true});
+  init = effect(() => {
+    this.cleanup();
+    this.device.parameters()
+    .forEach(p => this.ngxParametersById.set(p.address.id, (new NgxParameter(p, this.debugMode()))));
+  }, {allowSignalWrites: true});
+  constructor() { 
   }
   cleanup() {
     this.ngxParametersById.forEach(p => p.unlinkControl()?.unlinkExternalSubjects());

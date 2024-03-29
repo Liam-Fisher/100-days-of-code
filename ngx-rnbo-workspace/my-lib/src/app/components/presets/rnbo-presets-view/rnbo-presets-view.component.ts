@@ -9,17 +9,12 @@ import { PresetCreateInputComponent } from '../preset-create-input/preset-create
   imports: [PresetsIdSelectComponent, PresetCreateInputComponent],
   template: `
   <ngx-preset-id-select [ids]="presets.ids()"></ngx-preset-id-select>
-  <p>dirty: {{presets.isDirty()}}</p>
 <div>
   <ngx-preset-create-input [ids]="presets.ids()" (newIdChange)="create($event)"></ngx-preset-create-input>
 </div>
 <div>
-  @if(presets.isDirty()) {
-    <button (click)="presets.updatePreset()">Update</button>
-  }
-  @if(!presets.isLoaded()) {
-  <button (click)="presets.loadPreset()">Load</button>
-  }
+  <button (click)="presets.updatePreset()" [disabled]="!presets.isDirty()">Update</button>
+  <button (click)="presets.loadPreset()" [disabled]="!presets.isDirty()">Load</button>
   <button (click)="presets.deletePreset()">Delete</button>
 </div>
   `,
@@ -32,7 +27,7 @@ $idSelected = effect(() => {
   this.presets.changeSelection(this.idSelectElement().id());
 }, {allowSignalWrites: true});
   
-  create(newId: string){
+  create(newId: string) {
     this.presets.selectedId.set(newId);
     this.presets.createPreset();
   }

@@ -2,10 +2,8 @@ import { Component,  Injector, effect, inject, input } from '@angular/core';
 import { AudioService } from '../../services/audio/audio.service';
 import { RnboDeviceService } from '../../services/device/rnbo-device.service';
 import { NgxPatcher } from '../../types/patcher';
-import { PresetAction } from '../../types/preset';
 import { BehaviorSubject, Subject } from 'rxjs';
 import {  PortMessage } from '../../types/messaging';
-import { TimingMesssage } from '../../types/timing';
 import { AudioControlPanelComponent } from '../audio/audio-control-panel/audio-control-panel.component';
 import {  ReactiveFormsModule } from '@angular/forms';
 import { RnboParametersService } from '../../services/parameters/rnbo-parameters.service';
@@ -17,6 +15,8 @@ import { RnboMessagingViewComponent } from '../messaging/rnbo-messaging-view/rnb
 import { RnboMidiService } from '../../services/midi/rnbo-midi.service';
 import { RnboPresetsService } from '../../services/presets/rnbo-presets.service';
 import { RnboTimingService } from '../../services/timing/timing.service';
+import { RnboPresetsViewComponent } from '../presets/rnbo-presets-view/rnbo-presets-view.component';
+import { RnboTimingViewComponent } from '../timing/rnbo-timing-view/rnbo-timing-view.component';
 
 
 @Component({
@@ -28,13 +28,13 @@ import { RnboTimingService } from '../../services/timing/timing.service';
     AudioControlPanelComponent,
     RnboParametersViewComponent,
     RnboBuffersViewComponent,
-    RnboMessagingViewComponent
+    RnboMessagingViewComponent,
+    RnboPresetsViewComponent,
+    RnboTimingViewComponent
   ],
   template: `
   <ngx-audio-control-panel></ngx-audio-control-panel>
-  <ngx-rnbo-buffers-view></ngx-rnbo-buffers-view>
   <button (click)="doTest()">Test</button>
-  <input type="checkbox" [(checked)]="midi.logEvents" />
   `,
   styles: ``
 })
@@ -56,40 +56,17 @@ export class RnboDeviceComponent {
   patcherInput = input.required<NgxPatcher>();
 
   loadDeviceOnUserInteraction = effect(() => {
-    if(this.audio.isReady()) {
-        this.device.load('untitled', this.patcherInput());
+    if(this.audio.isReady()) { 
+      this.device.load('untitled', this.patcherInput());
     }
   }, {allowSignalWrites: true});
 
-  /// think we're going to get these from the preset component using queries 
-
-  // presetIndex = model<number>(0);
-  // presetSelection = model<string>(''); // a consumer can select a preset by name or index, or listen to user selection and load the preset 
-
-  // presetIDs = computed(() => Array.from(this.presetService.ids()??[]));
-
-  presetInput = new Subject<PresetAction>(); // the preset input channel
-  
-  //  presetIDs = computed<string[]>(() => this.deviceService.presetIDs); // the preset ids
-  // ?? do this instead of an input event??
-  // presetSelection = model<string>(''); // a consumer can select a preset by name or index, or listen to user selection and load the preset
-
-  timingInput = new Subject<TimingMesssage>(); // the timing input channel
-
-
-  // Still need Buffer and Parameter attributes.
   constructor() { }
-  toggleMIDILogging() {
-  }
   set inputGain(gain: number) {
     this.audio.setInputGain(gain);
   }
   set outputGain(gain: number) {
     this.audio.setOutputGain(gain);
-  }
-  doTest(){
-    console.log('logging inport ids:');
-    console.log('logging outport ids:');  
   }
   linkInportSubject(subject: BehaviorSubject<PortMessage>) {
     return this.messaging.connectExternalSubjectToInport(subject);
@@ -106,5 +83,7 @@ export class RnboDeviceComponent {
   linkMIDIOutputSubject(subject: BehaviorSubject<number[]>) {
     return this.midi.connectOuportToExternalSubject(subject);
   }
-  
+doTest() {
+  this.midi.addInput(0);
+}
 }

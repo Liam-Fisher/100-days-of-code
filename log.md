@@ -94,8 +94,18 @@ UPDATE: I Also created a Parameter Service with a bunch of methods for parameter
 
 
 ### Day 12: March 28th 2024
-###### Presets
+##### Presets
 
 **Today's Progress:** Good amount of progress today, created the preset service/basic version of the component. Had some fun creating a command interface that'll be my inspiration for how the buffer interface will go, though neither are implemented programmatically at the top-level yet. Did all lot of nitpicky conditional component rendering stuff stuff that'll have to be changed into classes, but I wanted to make sure I had a record of the logic. 
 
 **Thoughts:** Put a lot of thought into the state-logic of presets, for example a preset shouldn't be able to be updated if it hasn't been changed, or created if it has the same name as an existing preset. Kind of enjoyed the process of breaking a preset action into as few components as possible, in order to see which actions need to be taken. 
+
+### Day 13: March 29th 2024
+##### Midi investigation
+
+**Today's Progress:** Didn't have a whole lot of time today so instead of starting on the angular material I did some testing of the preset components, and learned that Web MIDI is actually pretty easy to use, so I added some methods to the midi service to fetch user devices. 
+
+**Thoughts:** I've always found midi to be somewhat irksome to work with at the byte level, but fortunately rnbo does all the parsing, so all you really need is to be able to format web midi messages into rnbo midi events. Given that this capability is there, it would be a shame not to take advantage of it. I'll have to play with it a little more to see if the latency reaches "annoying" levels, but it would be a cool feature to have. 
+
+In regards to stream types, the connecting/disconnecting is starting to get a little repetitive, I think I'm going to start creating a generic method for connecting two compatible stream types, once I make a nice chart of what those are.
+

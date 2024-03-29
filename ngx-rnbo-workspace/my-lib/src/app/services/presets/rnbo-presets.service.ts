@@ -7,6 +7,7 @@ import { BehaviorSubject, from } from 'rxjs';
 @Injectable()
 export class RnboPresetsService {
   device = inject(RnboDeviceService);
+  debug = computed<boolean>(() => this.device.debugMode()?.presets??false);
   map = new Map<string, IPreset>();
   selectedId = signal<string>('');
   ids = computed<string[]>(() => [...this.device.presetIds()]);

@@ -7,7 +7,15 @@ import { load } from './helpers/load';
 import { TaggedDataRef } from '../../types/buffers';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-
+interface Debugging {
+  messaging?: boolean;
+  parameters?: boolean;
+  timing?: boolean;
+  presets?: boolean;
+  buffers?: boolean;
+  midi?: boolean;
+  audio?: boolean;
+}
 @Injectable()
 export class RnboDeviceService {
   audio = inject(AudioService);
@@ -15,14 +23,21 @@ export class RnboDeviceService {
   isLoaded = signal<boolean>(false); 
   bufferRefs = computed<TaggedDataRef[]>(() => (this.sig()?.dataBufferDescriptions??[]) as TaggedDataRef[]);
   presets = computed(() => this.sig()?.meta.presets??null);
-  presetIds = computed<string[]>(() => [...(this.presets().keys()??[])]);
+  presetIds = computed<string[]>(() => [...(this.presets()?.keys()??[])]);
   
   load: (id: string, p: string|NgxPatcher|null) => Promise<void> = load.bind(this);
   parameters = computed(() => this.sig()?.parameters??[]);
+  debugMode = signal<Debugging>({
+    messaging: false,
+    parameters: false,
+    timing: false,
+    presets: false,
+    buffers: false,
+    midi: false,
+    audio: false
+  });
 
-  constructor() {
-
-   }
+  constructor() { }
   async getDataBuffer(id: string) {
     return (await this.sig()?.releaseDataBuffer(id))??null;
   }

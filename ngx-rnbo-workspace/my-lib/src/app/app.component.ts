@@ -1,18 +1,15 @@
-import { Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { RnboDeviceComponent } from './components/rnbo-device/rnbo-device.component';
-import * as test from './examplePatchers/testing_buffers.export.json';
+import * as test from './examplePatchers/feature_test.export.json';
 import { NgxPatcher } from './types/patcher';
-import { BehaviorSubject } from 'rxjs';
 import {  ReactiveFormsModule } from '@angular/forms';
-import { PortMessage } from './types/messaging';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, RnboDeviceComponent, ReactiveFormsModule],
   template: `
-  <button (click)="testPortSubjectBinding()">test port subject binding</button>
   <ngx-rnbo-device #device [patcherInput]="testPatcher()"></ngx-rnbo-device> 
   
   `
@@ -22,7 +19,6 @@ export class AppComponent {
 title = 'my-lib';
 activeDevice = viewChild(RnboDeviceComponent);
 testPatcher = signal<NgxPatcher>(test as unknown as NgxPatcher); 
-testInportSubject = new BehaviorSubject<PortMessage>([0, '', []]);
 
 constructor() { 
 }
@@ -30,12 +26,6 @@ constructor() {
 logOutputEvent(src: string, event: any) {
   console.log(`output event: ${src}`, event);
 }
-  testPortSubjectBinding() {
-  this.activeDevice()?.linkInportSubject(this.testInportSubject);
-  this.testInportSubject.next([0, 'testInportMsg', [3,2,1]]);
-
-  //  this.activeDevice()?.linkOutportSubject(this.testOutportSubject);
-  }
 
 }
 
