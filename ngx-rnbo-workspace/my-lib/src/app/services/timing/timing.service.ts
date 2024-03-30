@@ -1,7 +1,10 @@
 import { Injectable, effect, inject, model, signal, untracked } from '@angular/core';
 import { RnboDeviceService } from '../device/rnbo-device.service';
 import { BeatTimeEvent, TempoEvent, TimeSignatureEvent, TransportEvent } from '@rnbo/js';
-import { TimingMessage } from '../../types/timing';
+import { timingAction } from '../../helpers/commands';
+import { BehaviorSubject } from 'rxjs';
+import { TimingAction } from '../../types/timing';
+
 
 @Injectable()
 export class RnboTimingService {
@@ -31,18 +34,10 @@ export class RnboTimingService {
     let ts = this.timeSignature();
     this.device.send(new TimeSignatureEvent(t, ts[0], ts[1]))
   });
+  command = timingAction.bind(this);
+  commandInput = new BehaviorSubject<TimingAction|null>(null);
+  $command = this.commandInput.subscribe((action) => this.command(action));
   constructor() { }
 
-  command(evt: TimingMessage) {
-    this.timingEventAt.set(evt?.timeTill??0);
-    switch(evt?.type) {
-      case 'beattime': this.beattime.set(evt?.data??0); break;
-      case 'tempo': this.tempo.set(evt?.data??120); break;
-      case 'timeSignature': this.timeSignature.set(evt?.data??[4, 4]); break;
-      case 'transport': this.transport.set(evt?.data??false); break;
-      default: 
-        console.log(`Invalid timing event type`, evt);
-        throw new Error(`Invalid timing event`);
-    }
-  }
+  
 }

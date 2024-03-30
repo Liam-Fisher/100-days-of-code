@@ -12,10 +12,17 @@ export type TaggedDataRef = {
     tag: string|BufferTag; // multibuffers do not have a tag property, which we can use to exclude them,
     type: string|BufferType;
 }
-export type BufferEditMethod = 'read'|'write'|'link'|'unlink';
-// |'delete'|'create'|'copy'|'move'|'rename'|'setTag'|'setType'|'setSrcType'|'setHidden'|'setFixedLength'|'setSelectedChannelIndex'|'decrementChannel'|'incrementChannel'|'setChannels'|'setLength'|'checkBuffer;
+export type BufferActionMode = 'read'|'write';
+
+// methods can be read or write, and the target can be a buffer id, a channel number, or a sample number
 
 
-export interface BufferEdit<M extends BufferEditMethod> {
-    method: BufferEditMethod;
+export interface BufferAction {
+    mode: BufferActionMode;
+    target: {
+        id: string;
+        channel?: number;
+        offset?: number;
+    }
+    value?: Float32Array|Float32Array[];
 }

@@ -3,6 +3,8 @@ import { RnboDeviceService } from '../device/rnbo-device.service';
 import { PresetAction, PresetMap } from '../../types/preset';
 import { IEventSubscription, IPreset } from '@rnbo/js';
 import { BehaviorSubject, from } from 'rxjs';
+import { createPreset, deletePreset, loadPreset, updatePreset } from './helpers/presetActions';
+import { presetAction } from '../../helpers/commands';
 
 @Injectable()
 export class RnboPresetsService {
@@ -15,31 +17,37 @@ export class RnboPresetsService {
   selectedPreset = computed<IPreset|null>(() => this.map.get(this.selectedId())??null);
   
   isDirty = signal<boolean>(false);
-  isLoaded = signal<boolean>(false);
-  $selectedPreset?: IEventSubscription;
+  $isDirty?: IEventSubscription;
 
+  isLoaded = signal<boolean>(false);
+  
   init = effect(() => {
     const device = this.device.sig();
     if(!device) return;
-    this.$selectedPreset = this.device.sig()?.presetTouchedEvent
+    this.$isDirty = this.device.sig()?.presetTouchedEvent
     .subscribe(() => this.isDirty.set(true));
     this.map = device.meta.presets;
     
   }, {allowSignalWrites: true});
-  constructor() { 
 
-  }
+  create = createPreset.bind(this);
+  update = updatePreset.bind(this);
+  load = loadPreset.bind(this);
+  delete = deletePreset.bind(this);
+
+  command = presetAction.bind(this);
+  commandInput = new BehaviorSubject<PresetAction|null>(null);
+  $commandInput = this.commandInput.subscribe(action => this.command(action));
+  constructor() { }
   cleanup() {
-    this.$selectedPreset?.unsubscribe();
+    this.$isDirty?.unsubscribe();
     this.map.clear();
   }
   changeSelection(id: string) {
-    if(id !== this.selectedId()) {
-      this.selectedId.set(id);
-      this.isLoaded.set(false);
-      return true;
-    }
-    return false;
+    if(id === this.selectedId()) return false;
+    this.selectedId.set(id);
+    this.isLoaded.set(false);
+    return true;
   }
   async getPreset() {
       return (await this.device.sig()?.getPreset())??null;
@@ -50,54 +58,6 @@ export class RnboPresetsService {
     this.isDirty.set(false);
     return preset;
   }
-async createPreset() {
-  let id = this.selectedId();
-  if(!this.newId()) return `Preset ${id} already exists. Please select another id or update the existing preset.`;
-  let preset = this.setPreset(id, await this.getPreset());
-  if(!preset) return `Failed to get preset from device. Preset ${id} not created.`;
-  this.isLoaded.set(false);
-  return `New Preset ${id} created.`;
-}
-async updatePreset() {
-  let id = this.selectedId();
-  let preset = this.setPreset(id, await this.getPreset());
-  if(preset) return `Preset ${id} updated.`;
-  return `Failed to get preset from device. Preset ${id} not updated.`;
-}
-async loadPreset() {
-  let preset = this.selectedPreset();
-  if(!preset) return `Preset ${this.selectedId()} not found.`;
-    this.device.sig()?.setPreset(preset);
-    this.isLoaded.set(true);
-    return `Preset ${this.selectedId()} loaded.`;
-}
-async deletePreset() {
-  let id = this.selectedId();
-  let removed = this.map.delete(this.selectedId());
-  this.isLoaded.set(false);
-  if(removed) return `Preset ${id} removed.`;
-  return `Preset ${id} not found, nothing to remove.`;
-}
 
-command({type, id}: PresetAction) {
-  this.changeSelection(id);
-  try {
-  switch(type) {
-    case 'create':
-      return from(this.createPreset());
-    case 'update':
-      return from(this.updatePreset());
-    case 'load':
-      return from(this.loadPreset());
-    case 'delete':
-      return from(this.deletePreset());
-    default:
-      return from(`Invalid command type ${type}.`);
-    }
-  }
-  catch(e) {
-    return from(`Error executing command: ${type} ${id}. ${e}`);
-  }
-}
   
 }

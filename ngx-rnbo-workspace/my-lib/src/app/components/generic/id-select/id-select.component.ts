@@ -1,22 +1,27 @@
 import { Component, ElementRef, ModelSignal, Signal, computed, effect, input, model, viewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'ngx-id-select',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, MatSelectModule],
   template: `
-  <select #select [formControl]="selectFormControl">
+  <mat-select [formControl]="control">
+  <mat-option value="0">--Select and id</mat-option>
   @for(id of ids(); track $index) {
-    <option [value]="id">{{id}}</option>
+    <mat-option [value]="$index+1">{{id}}</mat-option>
   }
-  </select>
+  </mat-select>
   `,
   styles: ``
 })
 export class IdSelectComponent {
   ids = input.required<string[]>();
-  selectModel = input.required<Signal<string>>();
+  hints = input<string[]>([]);
+  
+  control = new FormControl<string>('');
+  
   selectFormControl = new FormControl<string>('', {nonNullable: true});
   selection = model<string>('');
   validSelection = computed(() => this.ids().includes(this.selection()));

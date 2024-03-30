@@ -1,6 +1,5 @@
 import { Component, computed, effect, inject, untracked, viewChild } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { TimingMessage } from '../../../types/timing';
 import { BeattimeInputComponent } from '../beattime-input/beattime-input.component';
 import { TransportToggleComponent } from '../transport-toggle/transport-toggle.component';
 import { TempoInputComponent } from '../tempo-input/tempo-input.component';

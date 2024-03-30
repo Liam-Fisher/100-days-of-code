@@ -63,7 +63,7 @@ export class NgxBuffer {
         this.obj?.copyFromChannel(tgt, channel, offset);
     }
     readChan(channel: number) {
-        return this.obj?.getChannelData(channel)??null;
+        return this.obj?.getChannelData(channel);
     }
     copyToAudio(src: Float32Array[]) {
         if(!this.checkDims(src)) return false;
@@ -94,13 +94,13 @@ export class NgxBuffer {
         this.obj = null;
         return true;
     }
-    async createEmpty(length: number, channels: number) {
+    createEmpty(length: number, channels: number) {
         this.srcType = 'empty';
         this.obj = this.ctx.createBuffer(channels, length, this.sampleRate);
     }
-    async setAudioFromData(data: Float32Array[]) {
+    setAudioFromData(data: Float32Array[]) {
         if(!data.length||!data[0].length) data = this.defaultData;
-        if(!this.checkDims(data)) await this.createEmpty(data[0].length, data.length);
+        if(!this.checkDims(data)) this.createEmpty(data[0].length, data.length);
         for(let i = 0; i < this.channels; i++) {
             this.obj?.getChannelData(i).set(data[i]);
         }
@@ -128,7 +128,7 @@ export class NgxBuffer {
         }
         return !!this.obj;
     }
-    async setAudioFromDataBuffer(dataBuffer: DataBuffer|null) {
+    setAudioFromDataBuffer(dataBuffer: DataBuffer|null) {
         if(!dataBuffer?.buffer) return false;
         if(dataBuffer.buffer.byteLength) {
             this.srcType = 'device';
@@ -137,7 +137,7 @@ export class NgxBuffer {
         }
         else {
             this.srcType = 'empty';
-            return await this.setAudioFromData(this.defaultData);
+            return this.setAudioFromData(this.defaultData);
         }
     }
     

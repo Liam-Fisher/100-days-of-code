@@ -2,7 +2,7 @@ import { Component,  Injector, effect, inject, input } from '@angular/core';
 import { AudioService } from '../../services/audio/audio.service';
 import { RnboDeviceService } from '../../services/device/rnbo-device.service';
 import { NgxPatcher } from '../../types/patcher';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, Subject, delay, fromEventPattern } from 'rxjs';
 import {  PortMessage } from '../../types/messaging';
 import { AudioControlPanelComponent } from '../audio/audio-control-panel/audio-control-panel.component';
 import {  ReactiveFormsModule } from '@angular/forms';
@@ -17,6 +17,7 @@ import { RnboPresetsService } from '../../services/presets/rnbo-presets.service'
 import { RnboTimingService } from '../../services/timing/timing.service';
 import { RnboPresetsViewComponent } from '../presets/rnbo-presets-view/rnbo-presets-view.component';
 import { RnboTimingViewComponent } from '../timing/rnbo-timing-view/rnbo-timing-view.component';
+import { EnumParameter } from '@rnbo/js';
 
 
 @Component({
@@ -62,6 +63,7 @@ export class RnboDeviceComponent {
   }, {allowSignalWrites: true});
 
   constructor() { }
+  
   set inputGain(gain: number) {
     this.audio.setInputGain(gain);
   }
@@ -83,7 +85,13 @@ export class RnboDeviceComponent {
   linkMIDIOutputSubject(subject: BehaviorSubject<number[]>) {
     return this.midi.connectOuportToExternalSubject(subject);
   }
-doTest() {
-  this.midi.addInput(0);
-}
+  doTest() {
+    let parameter = this.device.sig()?.parametersById.get("transportToggle") as EnumParameter;
+    parameter.value =  1;
+    let msgEvent = this.device.sig()?.messageEvent??null;
+    const sub1 = msgEvent?.subscribe((msg) => {
+      console.log(`logging from subscribe`);
+      console.log(msg);
+    });
+  }
 }

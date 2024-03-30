@@ -19,4 +19,4 @@ export interface TimeSignatureMesssage {
     timeTill?: number;
     data: [number, number];
 }
-export type TimingMessage = TransportMesssage|BeatTimeMesssage|TempoMesssage|TimeSignatureMesssage;
+export type TimingAction = TransportMesssage|BeatTimeMesssage|TempoMesssage|TimeSignatureMesssage;

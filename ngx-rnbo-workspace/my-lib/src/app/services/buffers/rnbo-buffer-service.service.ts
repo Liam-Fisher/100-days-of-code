@@ -4,7 +4,8 @@ import { NgxBuffer } from './helpers/ngxbuffer';
 import { NgxDevice } from '../../types/device';
 import { Injectable, computed, effect, inject } from '@angular/core';
 import { BehaviorSubject, Subscription, from, map } from 'rxjs';
-import { TaggedDataRef } from '../../types/buffers';
+import { BufferAction, TaggedDataRef } from '../../types/buffers';
+import { bufferAction } from '../../helpers/commands';
 
 
 @Injectable()
@@ -21,7 +22,9 @@ export class RnboBufferService {
   });
   
   isLoading = new BehaviorSubject<boolean>(false);
-  
+  command = bufferAction.bind(this);
+  commandInput = new BehaviorSubject<BufferAction|null>(null);
+  $command = this.commandInput.subscribe((action) => this.command(action));
   constructor() { }
   loadRefs(refs: TaggedDataRef[]) {
 
@@ -39,9 +42,8 @@ export class RnboBufferService {
     return from(Promise.all(loaded)).pipe(map((v: boolean[]) => v.every(el => el)));
   }
   cleanup() {
-    for(let buffer of this.map.values()) {
-      buffer?.setAudioToNull();
-    }
+    this.$command.unsubscribe();
+    this.map.forEach((buf, k) => buf?.setAudioToNull());
     this.map.clear();
     return this;
   }
@@ -75,5 +77,4 @@ export class RnboBufferService {
       return false;
     }
   }
-
 }

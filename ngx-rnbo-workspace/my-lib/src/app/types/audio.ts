@@ -14,7 +14,7 @@ type SimpleNode = ChannelMergerNode | ChannelSplitterNode | DelayNode | GainNode
 type EffectNode =  BiquadFilterNode | WaveShaperNode | IIRFilterNode;
 
   // node ID: [outputIndex, inputIndex]
-  export type connection = Record<string, [number?, number?]>;
+export type connection = Record<string, [number?, number?]>;
   // [source_id: string, source_output_index: number, sink_id: string, sink_input_index: number];
 export interface ConnectionMap {
     sources: connection;
