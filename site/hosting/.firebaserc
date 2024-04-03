@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "doc-100": {
+      "hosting": {
+        "doc-100": [
+          "doc-100"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "doc-100"
+  }
+}

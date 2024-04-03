@@ -1,0 +1,9 @@
+{
+  "hosting": [
+    {
+      "target": "doc-100",
+      "source": ".",
+      "frameworksBackend": {}
+    }
+  ]
+}
