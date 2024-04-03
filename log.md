@@ -109,3 +109,27 @@ UPDATE: I Also created a Parameter Service with a bunch of methods for parameter
 
 In regards to stream types, the connecting/disconnecting is starting to get a little repetitive, I think I'm going to start creating a generic method for connecting two compatible stream types, once I make a nice chart of what those are.
 
+### Day 14: March 30th 2024
+
+**Today's Progress:**  Didn't have a whole lot of time again today. Decided to take some of the code I've reused throughout the library and create some resuable functions. Trying to standardize some of the functionality so it's usable through a CLI as well as a GUI, and today this also included creating "command" functions for a few of the services that allow the control of objects. 
+
+**Thoughts:** I really enjoy writing abstract code, unfortunately that doesn't seem to happen it the right timeline. Been learning a little more about design patterns and trying to factor them into my workflow.
+
+
+~~### Day 15: March 31st 2024~~
+
+**UH OH:** Today was a miss unfortunately. I started adding some methods to the rnbo component, but ended up getting tired and had to go to bed. Tomorrow is a new month though!
+
+
+### Day 15: April 1st 2024
+
+**Today's Progress:** Decided to swap it up today and create a site to host some of the stuff I'm building. This was a lot more tooling than writing code but I pushed my comfort zone so I'm gonna count it. Didn't end up actually hosting the site as I'm not really sure what to put but the configuration is all there.
+
+**Thoughts:** I've dabbled in firebase a bit before but it's been a few months since I actually initialized a new project, and I forgot how slow and error-prone the process feels. This one really sapped the motivation out of me like nothing else but I am glad that I gave it a shot at least.
+
+
+### Day 16 April 2nd 2024 
+
+**Today's Progress:** Managed to get the site up at 100-doc.web.app , but struggled with getting the firebase services to work with the full standalone angular model. 
+
+**Thoughts:** Although this is probably the best time to push boundaries and learn something new, I don't want to get too stuck/fixated on a new way of doing things (e.g. standalone) if the way I'm familiar with works just as well for creating simple demo projects. 
