@@ -133,3 +133,11 @@ In regards to stream types, the connecting/disconnecting is starting to get a li
 **Today's Progress:** Managed to get the site up at 100-doc.web.app , but struggled with getting the firebase services to work with the full standalone angular model. 
 
 **Thoughts:** Although this is probably the best time to push boundaries and learn something new, I don't want to get too stuck/fixated on a new way of doing things (e.g. standalone) if the way I'm familiar with works just as well for creating simple demo projects. 
+
+
+### Day 17 April 3rd 2024
+##### Firebase Fun
+
+**Today's Progress:** Did quite a bit today! Decided to create a [separate repo](https://github.com/Liam-Fisher/100-doc) for the hosting site as this one was getting a little crowded. Created an auth service and a firestore database for user documents. I was only able to get the "sign in with google" method to work, but it did manage to automatically create a firestore document for my user. Did some fairly thorough typescripting (minus a few "as"es) so it should be easy to scale. If you would like to login with google and see your name displayed in *stunning 12px sans-serif letters*, check it out [here](https://doc-100.web.app/);
+
+*Thoughts:** I didn't even touch signals for this one although I'm fairly certain they would have been helpful for propagating changes in the authState. Wasn't sure at what point to switch over, so I decided to play it safe and stick with rxjs. Also didn't find the time to make it easier on the eyes, I'm saving my scss learning binge for a later date but it'll be coming. On the plus side, I've noticed I'm getting a lot better at writing clean and maintainable code, which used to be a huge issue for me. I love this "super-service with bound helper modules" pattern I've been using, but I've definitely got to be cautious about overusing it, as I'm sure to eventually come across some places where it's not the best call.    
