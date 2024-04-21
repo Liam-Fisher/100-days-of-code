@@ -17,9 +17,8 @@ interface AudioContextStateCommand {
     action: AudioContextAction;
 }
 
-interface AudioContextQueryCommand {
-    action: "query";
-    prop: "state" | "currentTime" | "sampleRate" | "baseLatency" | "outputLatency" ;
+export interface AudioContextQueryCommand {
+    prop?: "state" | "currentTime" | "sampleRate" | "baseLatency" | "outputLatency" ;
 }
 
 /**
@@ -37,20 +36,39 @@ interface AudioContextNewCommand {
 }
 
 // Inputs
-type SourceNode = OscillatorNode | AudioBufferSourceNode | MediaElementAudioSourceNode | MediaStreamAudioSourceNode;
+export type SourceNode = OscillatorNode | AudioBufferSourceNode | MediaElementAudioSourceNode | MediaStreamAudioSourceNode;
 // Outputs
-type SinkNode = AnalyserNode | AudioDestinationNode | MediaStreamAudioDestinationNode;
+export type SinkNode = AnalyserNode | AudioDestinationNode | MediaStreamAudioDestinationNode;
 // computationally expensive nodes. Use sparingly, generally before rendering 
-type MixerNode = PannerNode | DynamicsCompressorNode | ConvolverNode ; 
+export type MixerNode = PannerNode | DynamicsCompressorNode | ConvolverNode ; 
 // the basic building blocks of dsp
-type SimpleNode = ChannelMergerNode | ChannelSplitterNode | DelayNode | GainNode ;
+export type SimpleNode = ChannelMergerNode | ChannelSplitterNode | DelayNode | GainNode ;
 // nodes that can be used to create effects
-type EffectNode =  BiquadFilterNode | WaveShaperNode | IIRFilterNode;
+export type EffectNode =  BiquadFilterNode | WaveShaperNode | IIRFilterNode;
 
-type AudioNodeClasses = {
+export type DeviceNode = AudioNode;
+
+export type NodeKind = 'source' | 'sink' | 'mixer' | 'simple' | 'effect' | 'device';
+
+// no ctors for audio destination, and media element source
+/* 
+export const NodeClassNames = {
+    'source': ['Oscillator', 'BufferSource', 'MediaStreamSource'],
+    'sink': ['Analyser', 'MediaStreamDestination'],
+    'mixer': ['Panner', 'DynamicsCompressor', 'Convolver'],
+    'simple': ['ChannelMerger', 'ChannelSplitter', 'Delay', 'Gain'],
+    'effect': ['BiquadFilter', 'WaveShaper', 'IIRFilter']
+}
+export type NodeClassName = keyof typeof NodeClassNames;
+ */
+export type AudioNodeClasses = {
+    "Analyser": AnalyserNode,
+    "MediaStreamDestination": MediaStreamAudioDestinationNode,
+    "Oscillator": OscillatorNode,
+    "MediaStreamSource": MediaStreamAudioSourceNode,
+    "BufferSource": AudioBufferSourceNode,
     "Panner": PannerNode,
     "Convolver": ConvolverNode,
-    "Oscillator": OscillatorNode,
     "BiquadFilter": BiquadFilterNode,
     "WaveShaper": WaveShaperNode,
     "IIRFilter": IIRFilterNode,
@@ -58,14 +76,44 @@ type AudioNodeClasses = {
     "ChannelSplitter": ChannelSplitterNode,
     "Gain": GainNode,
     "Delay": DelayNode,
-    "DynamicsCompressor": DynamicsCompressorNode,
-    "AudioSource": SourceNode,
+    "DynamicsCompressor": DynamicsCompressorNode
 }
+export const AudioNodeClassShortcuts: Record<string, keyof AudioNodeClasses> = {
+    'an': 'Analyser',
+    'bq': 'BiquadFilter',
+    "pan": 'Panner',
+    'cmp': 'DynamicsCompressor',
+    "cnv": 'Convolver',
+    "buf": 'BufferSource',
+    "osc": 'Oscillator',
+    'ws': 'WaveShaper',
+    'iir': 'IIRFilter',
+    'mrg': 'ChannelMerger',
+    'spl': 'ChannelSplitter',
+    'amp': 'Gain',
+    'del': 'Delay',
+    'src': 'MediaStreamSource',
+    'dst': 'MediaStreamDestination'
+}
+export type AudioNodeClassName = keyof AudioNodeClasses;
 
-type AudioNodeClassName = keyof AudioNodeClasses;
-
-
-
+export const NodeClassKinds: Record<AudioNodeClassName, NodeKind> = {
+    "Oscillator": 'source',
+    "BufferSource": 'source',
+    "MediaStreamSource": 'source',
+    "Analyser": 'sink',
+    "MediaStreamDestination": 'sink',
+    "Panner": 'mixer',
+    "DynamicsCompressor": 'mixer',
+    "Convolver": 'mixer',
+    "ChannelMerger": 'simple',
+    "ChannelSplitter": 'simple',
+    "Delay": 'simple',
+    "Gain": 'simple',
+    "BiquadFilter": 'effect',
+    "WaveShaper": 'effect',
+    "IIRFilter": 'effect'
+}
 
 /**
  * 
@@ -78,12 +126,13 @@ type AudioNodeClassName = keyof AudioNodeClasses;
  * @param args - An array of arguments to pass to the node
  * 
  */
-interface CreateAudioNodeCommand<TNode extends AudioNodeClassName> {
+export interface CreateAudioNodeCommand<TNode extends AudioNodeClassName> {
     node: TNode;
     id?: string;
-    args: AudioNodeArg<TNode>[]
+    connections?: ConnectionMap;
+    args?: AudioNodeArg<TNode>[]
 }
-type AudioNodeArg<TNode extends AudioNodeClassName> = [prop: keyof AudioNodeClasses[TNode], value: AudioNodeClasses[TNode][keyof AudioNodeClasses[TNode]]];
+export type AudioNodeArg<TNode extends AudioNodeClassName> = [prop: keyof AudioNodeClasses[TNode], value: AudioNodeClasses[TNode][keyof AudioNodeClasses[TNode]]];
 
 /**
  * DestroyAudioNodeCommand interface.
@@ -147,20 +196,27 @@ interface QueryAudioNodeCommand {
 }
 
 type AudioParamEventType = "setValueAtTime" | "linearRampToValueAtTime" | "exponentialRampToValueAtTime" | "setTargetAtTime" | "setValueCurveAtTime" | "cancelScheduledValues";
+
+type AudioParamEventTypeShorcuts = {
+    "set": "setValueAtTime",
+    "lin": "linearRampToValueAtTime",
+    "exp": "exponentialRampToValueAtTime",
+    "tgt": "setTargetAtTime",
+    "curve": "setValueCurveAtTime",
+    "cancel": "cancelScheduledValues"
+}
 interface AudioParamCommand<Evt extends AudioParamEventType> {
     id: string;
     param: string;
-    method: Evt;
+    method?: Evt;
     args: Parameters<AudioParam[Evt]>; 
 }
 
+export type Connection = [source_output: number, target_input: number];
+export type ConnectionMsg = [source_id: string, tgt_id: string, ...connection: Connection[]];
 
-export type connection = Record<string, [number?, number?]>;
-  // [source_id: string, source_output_index: number, sink_id: string, sink_input_index: number];
-export interface ConnectionMap {
-    sources: connection;
-    sinks: connection;
-} 
+export type ConnectionMatrices = Map<string, boolean[][]>;
+export type ConnectionMap  = [inputs: ConnectionMatrices, outputs: ConnectionMatrices];
 
 export interface IAudioControl {
     nodes: Map<string, AudioNode>;

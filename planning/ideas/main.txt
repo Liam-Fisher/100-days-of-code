@@ -1,0 +1,6 @@
+extend the rnbo lib to create a framework for syncing model animations with device events.
+
+Should take a gltf model file, an rnbo device, and a schedule.
+
+
+

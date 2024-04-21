@@ -1,12 +1,13 @@
 
 import { NgxDevice } from '../../types/device';
 import { MessageEvent, MIDIEvent, BeatTimeEvent, TransportEvent, TimeSignatureEvent, TempoEvent , MIDIData, Event} from '@rnbo/js';
-import { AudioService } from '../audio/audio.service';
+
 import { NgxPatcher } from '../../types/patcher';
 import { load } from './helpers/load';
 import { TaggedDataRef } from '../../types/buffers';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { AudioService } from '../audio/audio.service';
 interface Debugging {
   messaging?: boolean;
   parameters?: boolean;

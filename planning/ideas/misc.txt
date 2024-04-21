@@ -1,0 +1,11 @@
+Model Loader
+Create a component with the ability to load a gltf model from firebase storage and display it in a threejs scene.
+
+User permissions
+Use firebase storage rules to restrict access to files based on user id and permissions.
+
+Payment
+Learn how to manage user payments and subscriptions using stripe.
+
+Extensions
+Test out some firebase extensions, such as a chat bot for using a specific interface??

@@ -1,6 +1,3 @@
-
-
-
 interface Schedule {
     id: string;
     ports: string[];  

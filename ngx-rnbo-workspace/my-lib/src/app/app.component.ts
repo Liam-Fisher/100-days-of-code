@@ -11,7 +11,6 @@ import {  ReactiveFormsModule } from '@angular/forms';
   imports: [RouterOutlet, RnboDeviceComponent, ReactiveFormsModule],
   template: `
   <ngx-rnbo-device #device [patcherInput]="testPatcher()"></ngx-rnbo-device> 
-  
   `
 })
 export class AppComponent {
@@ -20,8 +19,7 @@ title = 'my-lib';
 activeDevice = viewChild(RnboDeviceComponent);
 testPatcher = signal<NgxPatcher>(test as unknown as NgxPatcher); 
 
-constructor() { 
-}
+constructor() { }
 
 logOutputEvent(src: string, event: any) {
   console.log(`output event: ${src}`, event);

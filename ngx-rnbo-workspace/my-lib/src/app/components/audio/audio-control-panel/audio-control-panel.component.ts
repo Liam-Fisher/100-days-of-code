@@ -33,7 +33,7 @@ export class AudioControlPanelComponent {
   state = computed(() => this.audio.state()??'closed');
   running = computed(() => this.state() === 'running');
   closed = computed(() => this.state() === 'closed');
-  device = inject(RnboDeviceService);
+ // device = inject(RnboDeviceService);
   
   inputGainControl = new FormControl(0, {nonNullable: true});
   outputGainControl = new FormControl(0, {nonNullable: true});

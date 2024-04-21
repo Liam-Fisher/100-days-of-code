@@ -63,7 +63,6 @@ export class RnboDeviceComponent {
   }, {allowSignalWrites: true});
 
   constructor() { }
-  
   set inputGain(gain: number) {
     this.audio.setInputGain(gain);
   }

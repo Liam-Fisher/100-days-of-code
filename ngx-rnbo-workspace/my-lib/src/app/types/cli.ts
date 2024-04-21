@@ -1,9 +1,13 @@
 import { input, output } from "@angular/core";
 import { Observable } from "rxjs";
-// Basic command structure
+// Basic command syntax -> context (contextAction) contextObject (objectIdentifier) action (actionName) args (args
 // action: string;
 // context: string;
 // args: string[];
+
+type CLI_Context = "file" | "device" | "audio" ;
+type Device_Object = "buffer" | "parameter" | "port" ; 
+type Audio_Object = "context" | "node" | "" ;
 
 type args = string[];
 
@@ -44,7 +48,7 @@ export interface ICommand {
 
 export type CommandActions = {
     "audio": ["play", "stop", "pause", "resume"],
-    "buffer": ["load", "unload"],
+    "buffer": [],
     "device": [],
     "message": ["send", "receive"],
     "midi": ["send", "receive"],
@@ -67,7 +71,6 @@ interface ContextualCommand<TCtx extends CommandContext> extends GenericCommand 
 }
 declare function execute(command: GenericCommand): Observable<string>;
 declare function parseInput(command: Observable<string>): GenericCommand|Error;
-
 declare function parseArgs(args: string[]): GenericCommand|Error;
 
 
@@ -75,3 +78,12 @@ declare function parseArgs(args: string[]): GenericCommand|Error;
 interface SpecificCommand<TArgs extends any> extends GenericCommand {
     args: TArgs;
 };
+
+
+
+// command examples
+
+ 
+ 
+ 
+ // device load <device_id>  
